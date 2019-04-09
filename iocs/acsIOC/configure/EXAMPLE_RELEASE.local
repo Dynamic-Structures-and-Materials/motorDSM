@@ -1,0 +1,6 @@
+# Use the following lines if motorAcs was built inside motor
+MOTOR=
+-include $(MOTOR)/configure/RELEASE
+# Use the following lines if motorAcs was built outside motor
+#!MOTOR_ACS=
+#!-include $(MOTOR_ACS)/configure/RELEASE.local
