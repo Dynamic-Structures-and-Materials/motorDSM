@@ -21,12 +21,14 @@ acs_DBD += base.dbd
 # Include dbd files from all support applications:
 #ifdef ASYN
 acs_DBD += asyn.dbd
+acs_DBD += drvAsynSerialPort.dbd
+acs_DBD += drvAsynIPPort.dbd
 #endif
 acs_DBD += motorSupport.dbd
-acs_DBD += devAcs.dbd
+acs_DBD += devAcsMotor.dbd
 
 # Add all the support libraries needed by this IOC
-acs_LIBS += acs
+acs_LIBS += Acs
 acs_LIBS += motor
 #ifdef ASYN
 acs_LIBS += asyn

@@ -1,11 +1,14 @@
 #errlogInit(5000)
 < envPaths
-# Tell EPICS all about the record types, device-support modules, drivers,
-# etc. in this build from CARS
-dbLoadDatabase("../../dbd/WithAsyn.dbd")
-WithAsyn_registerRecordDeviceDriver(pdbbase)
 
-drvAsynIPPortConfigure("serial1", "164.54.160.36:4002",0,0,0)
+# Tell EPICS all about the record types, device-support modules, drivers, etc.
+dbLoadDatabase("../../dbd/acs.dbd")
+acs_registerRecordDeviceDriver(pdbbase)
+
+# Port 2 on a Moxa
+drvAsynIPPortConfigure("serial1", "192.168.1.16:4002",0,0,0)
+# Local serial port
+#!drvAsynSerialPortConfigure("serial1", "/dev/ttyS0", 0, 0, 0)
 asynOctetSetInputEos("serial1",0,"\r")
 asynOctetSetOutputEos("serial1",0,"\r")
 asynSetTraceIOMask("serial1", 0, 2)
