@@ -6,33 +6,33 @@ dbLoadDatabase("../../dbd/acs.dbd")
 acs_registerRecordDeviceDriver(pdbbase)
 
 # Port 2 on a Moxa
-#!drvAsynIPPortConfigure("serial1", "192.168.1.16:4002",0,0,0)
+#!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
 # Local serial port
-#!drvAsynSerialPortConfigure("serial1", "/dev/ttyS0", 0, 0, 0)
-drvAsynSerialPortConfigure("serial1", "/tmp/motorport", 0, 0, 0)
-asynSetOption("serial1", 0, "baud", "115200")
-asynSetOption("serial1", 0, "bits", "8")
-asynSetOption("serial1", 0, "parity", "none")
-asynSetOption("serial1", 0, "stop", "1")
+#!drvAsynSerialPortConfigure("serial0", "/dev/ttyS0", 0, 0, 0)
+drvAsynSerialPortConfigure("serial0", "/tmp/motorport", 0, 0, 0)
+asynSetOption("serial0", 0, "baud", "115200")
+asynSetOption("serial0", 0, "bits", "8")
+asynSetOption("serial0", 0, "parity", "none")
+asynSetOption("serial0", 0, "stop", "1")
 
 # not sure if these two are needed or what they should be set to:
-#!asynSetOption("serial1", 0, "clocal", "Y")
-#!asynSetOption("serial1", 0, "crtscts", "Y")
+#!asynSetOption("serial0", 0, "clocal", "Y")
+#!asynSetOption("serial0", 0, "crtscts", "Y")
 
-asynOctetSetInputEos("serial1",0,"\r")
-asynOctetSetOutputEos("serial1",0,"\r")
-asynSetTraceIOMask("serial1", 0, 2)
-#asynSetTraceMask("serial1", 0, 255)
+asynOctetSetInputEos("serial0", 0, "\r")
+asynOctetSetOutputEos("serial0", 0, "\r")
+asynSetTraceIOMask("serial0", 0, 2)
+#asynSetTraceMask("serial0", 0, 255)
 
-MCB4BCreateController("MCB4B1", "serial1", 1, 100, 5000)
+MCB4BCreateController("MCB4B0", "serial0", 1, 100, 5000)
 
 ### Motors
 dbLoadTemplate "motor.substitutions.mcb4b"
 
-dbLoadRecords("$(ASYN)/db/asynRecord.db","P=IOC:,R=serial1,PORT=serial1,ADDR=0,OMAX=80,IMAX=80")
+dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=DSM:,R=serial0,PORT=serial0,ADDR=0,OMAX=80,IMAX=80")
 
 iocInit
 
 # This IOC does not use save/restore, so set values of some PVs
-dbpf("IOC:m1.RTRY", "0")
-dbpf("IOC:m1.TWV", "0.1")
+dbpf("DSM:m0.RTRY", "0")
+dbpf("DSM:m0.TWV", "0.1")
