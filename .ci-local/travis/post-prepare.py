@@ -24,7 +24,7 @@ def sanity_check(filename):
     print("{}End of {}{}".format(ANSI_BLUE, filename, ANSI_RESET))
 
 # Add the path to the driver module to the RELEASE.local file, since it is needed by the example IOC
-update_release_local('MOTOR_ACS', os.getenv('TRAVIS_BUILD_DIR'))
+update_release_local('MOTOR_DSM', os.getenv('TRAVIS_BUILD_DIR'))
 
 # Copy the travis RELEASE.local to the configure dir
 filename = "configure/RELEASE.local"
