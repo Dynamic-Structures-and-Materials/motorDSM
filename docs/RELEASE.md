@@ -27,7 +27,7 @@ R1-1 is a release based on the master branch.
 * None
 
 #### Modifications to existing features
-* Commit [1bd580a](https://github.com/epics-motor/motorDsm/commit/1bd580a87869fb140939978c0b06856917282da9): ``iocsh`` dir moved into ``dsmApp`` dir; ``DSM_MCB4B.iocsh`` is now installed at build time
+* Commit [1bd580a](https://github.com/epics-motor/motorDsm/commit/1bd580a87869fb140939978c0b06856917282da9): ``iocsh`` dir moved into ``dsmApp`` dir; ``DSM_MD90.iocsh`` is now installed at build time
 
 #### Bug fixes
 * Commit [5ab502c](https://github.com/epics-motor/motorDsm/commit/5ab502c53ac81885e2a511ade95f22d0a0db4f43): Include ``$(MOTOR)/modules/RELEASE.$(EPICS_HOST_ARCH).local`` instead of ``$(MOTOR)/configure/RELEASE``

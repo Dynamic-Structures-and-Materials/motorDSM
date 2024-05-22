@@ -1,4 +1,4 @@
-/* File: devMCB4B.cc                    */
+/* File: devMD90.cc                    */
 
 /* Device Support Routines for motor */
 /*
@@ -20,21 +20,21 @@
 #include 	"motorRecord.h"
 #include 	"motor.h"
 #include 	"motordevCom.h"
-#include        "drvMCB4B.h"
+#include        "drvMD90.h"
 #include 	"epicsExport.h"
 
 #define STATIC static
 
-extern struct driver_table MCB4B_access;
+extern struct driver_table MD90_access;
 
 #define NINT(f) (long)((f)>0 ? (f)+0.5 : (f)-0.5)
 
-volatile int devMCB4BDebug = 0;
-extern "C" {epicsExportAddress(int, devMCB4BDebug);}
+volatile int devMD90Debug = 0;
+extern "C" {epicsExportAddress(int, devMD90Debug);}
 
 static inline void Debug(int level, const char *format, ...) {
   #ifdef DEBUG
-    if (level < devMCB4BDebug)
+    if (level < devMD90Debug)
     {
       va_list pVar;
       va_start(pVar, format);
@@ -45,35 +45,35 @@ static inline void Debug(int level, const char *format, ...) {
 }
 
 /* Debugging levels: 
- *      devMCB4BDebug >= 3  Print new part of command and command string so far
- *                          at the end of MCB4B_build_trans
+ *      devMD90Debug >= 3  Print new part of command and command string so far
+ *                          at the end of MD90_build_trans
  */
 
 
-/* ----------------Create the dsets for devMCB4B----------------- */
+/* ----------------Create the dsets for devMD90----------------- */
 STATIC struct driver_table *drvtabptr;
-STATIC long MCB4B_init(int);
-STATIC long MCB4B_init_record(void *);
-STATIC long MCB4B_start_trans(struct motorRecord *);
-STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd, double *, struct motorRecord *);
-STATIC RTN_STATUS MCB4B_end_trans(struct motorRecord *);
+STATIC long MD90_init(int);
+STATIC long MD90_init_record(void *);
+STATIC long MD90_start_trans(struct motorRecord *);
+STATIC RTN_STATUS MD90_build_trans(motor_cmnd, double *, struct motorRecord *);
+STATIC RTN_STATUS MD90_end_trans(struct motorRecord *);
 
-struct motor_dset devMCB4B =
+struct motor_dset devMD90 =
 {
-    {8, NULL, (DEVSUPFUN) MCB4B_init, (DEVSUPFUN) MCB4B_init_record, NULL},
+    {8, NULL, (DEVSUPFUN) MD90_init, (DEVSUPFUN) MD90_init_record, NULL},
     motor_update_values,
-    MCB4B_start_trans,
-    MCB4B_build_trans,
-    MCB4B_end_trans
+    MD90_start_trans,
+    MD90_build_trans,
+    MD90_end_trans
 };
 
-extern "C" {epicsExportAddress(dset,devMCB4B);}
+extern "C" {epicsExportAddress(dset,devMD90);}
 
 
 /* --------------------------- program data --------------------- */
 /* This table is used to define the command types */
 
-static msg_types MCB4B_table[] = {
+static msg_types MD90_table[] = {
     MOTION,     /* MOVE_ABS */
     MOTION,     /* MOVE_REL */
     MOTION,     /* HOME_FOR */
@@ -99,63 +99,63 @@ static msg_types MCB4B_table[] = {
 };
 
 
-static struct board_stat **MCB4B_cards;
+static struct board_stat **MD90_cards;
 
 /* --------------------------- program data --------------------- */
 
 
-/* initialize device support for MCB4B stepper motor */
-STATIC long MCB4B_init(int after)
+/* initialize device support for MD90 stepper motor */
+STATIC long MD90_init(int after)
 {
     long rtnval;
 
-    Debug(5, "MCB4B_init: entry\n");
+    Debug(5, "MD90_init: entry\n");
     if (!after)
     {
-	drvtabptr = &MCB4B_access;
+	drvtabptr = &MD90_access;
         (drvtabptr->init)();
     }
 
-    rtnval = motor_init_com(after, *drvtabptr->cardcnt_ptr, drvtabptr, &MCB4B_cards);
-    Debug(5, "MCB4B_init: exit\n");
+    rtnval = motor_init_com(after, *drvtabptr->cardcnt_ptr, drvtabptr, &MD90_cards);
+    Debug(5, "MD90_init: exit\n");
     return(rtnval);
 }
 
 
 /* initialize a record instance */
-STATIC long MCB4B_init_record(void *arg)
+STATIC long MD90_init_record(void *arg)
 {
     struct motorRecord *mr = (struct motorRecord *) arg;
     long rtnval;
 
-    Debug(5, "MCB4B_init_record: entry\n");
+    Debug(5, "MD90_init_record: entry\n");
     rtnval = motor_init_record_com(mr, *drvtabptr->cardcnt_ptr, 
-                                   drvtabptr, MCB4B_cards);
+                                   drvtabptr, MD90_cards);
     return(rtnval);
-    Debug(5, "MCB4B_init_record: exit\n");
+    Debug(5, "MD90_init_record: exit\n");
 }
 
 
 /* start building a transaction */
-STATIC long MCB4B_start_trans(struct motorRecord *mr)
+STATIC long MD90_start_trans(struct motorRecord *mr)
 {
     return(OK);
 }
 
 
 /* end building a transaction */
-STATIC RTN_STATUS MCB4B_end_trans(struct motorRecord *mr)
+STATIC RTN_STATUS MD90_end_trans(struct motorRecord *mr)
 {
     return(OK);
 }
 
 /* add a part to the transaction */
-STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct motorRecord *mr)
+STATIC RTN_STATUS MD90_build_trans(motor_cmnd command, double *parms, struct motorRecord *mr)
 {
     struct motor_trans *trans = (struct motor_trans *) mr->dpvt;
     struct mess_node *motor_call;
     struct controller *brdptr;
-    struct MCB4Bcontroller *cntrl;
+    struct MD90controller *cntrl;
     char buff[30];
     int axis, card;
     RTN_STATUS rtnval;
@@ -170,19 +170,19 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
     dval = (parms == NULL) ? 0.0 : *parms;
     ival = NINT(dval);
 
-    rtnval = (RTN_STATUS) motor_start_trans_com(mr, MCB4B_cards);
-    Debug(5, "MCB4B_build_trans: entry, motor_start_trans_com=%d\n", rtnval);
+    rtnval = (RTN_STATUS) motor_start_trans_com(mr, MD90_cards);
+    Debug(5, "MD90_build_trans: entry, motor_start_trans_com=%d\n", rtnval);
 
     motor_call = &(trans->motor_call);
-    motor_call->type = MCB4B_table[command];
+    motor_call->type = MD90_table[command];
     card = motor_call->card;
     axis = motor_call->signal;
     brdptr = (*trans->tabptr->card_array)[card];
-    Debug(5, "MCB4B_build_trans: axis=%d, command=%d\n", axis, command);
+    Debug(5, "MD90_build_trans: axis=%d, command=%d\n", axis, command);
     if (brdptr == NULL)
         return(rtnval = ERROR);
 
-    cntrl = (struct MCB4Bcontroller *) brdptr->DevicePrivate;
+    cntrl = (struct MD90controller *) brdptr->DevicePrivate;
 
 
     if (trans->state != BUILD_STATE)
@@ -192,8 +192,8 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
     {
         strcpy(motor_call->message, mr->init);
         rtnval = motor_end_trans_com(mr, drvtabptr);
-        rtnval = (RTN_STATUS) motor_start_trans_com(mr, MCB4B_cards);
-        motor_call->type = MCB4B_table[command];
+        rtnval = (RTN_STATUS) motor_start_trans_com(mr, MD90_cards);
+        motor_call->type = MD90_table[command];
     }
 
     switch (command)
@@ -207,8 +207,8 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
             {
                 strcpy(motor_call->message, mr->prem);
                 rtnval = motor_end_trans_com(mr, drvtabptr);
-                rtnval = (RTN_STATUS) motor_start_trans_com(mr, MCB4B_cards);
-                motor_call->type = MCB4B_table[command];
+                rtnval = (RTN_STATUS) motor_start_trans_com(mr, MD90_cards);
+                motor_call->type = MD90_table[command];
             }
             if (strlen(mr->post) != 0)
                 motor_call->postmsgptr = (char *) &mr->post;
@@ -238,7 +238,7 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
     case SET_VEL_BASE:
         send=false;
         trans->state = IDLE_STATE;
-        break;          /* MCB4B does not use base velocity */
+        break;          /* MD90 does not use base velocity */
     case SET_VELOCITY:
         ival = (int) (fabs(115200./dval) + 0.5);
         if (ival < 2) ival=2;
@@ -247,7 +247,7 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
         break;
     case SET_ACCEL:
         /* dval is acceleration in steps/sec/sec */
-        /* MCB is programmed with Ramp Index (R) where: */
+        /* MD-90 is programmed with Ramp Index (R) where: */
         /* dval (steps/sec/sec) = 720,000/(256-R) */
         /* or R=256-(720,000/dval) */
         ival = (int) (256-(720000./dval)+0.5);
@@ -257,7 +257,7 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
         break;
     case GO:
         /*
-         * The MCB4B starts moving immediately on move commands, GO command
+         * The MD90 starts moving immediately on move commands, GO command
          * does nothing
          */
         send=false;
@@ -265,7 +265,7 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
         break;
     case SET_ENC_RATIO:
         /*
-         * The MCB4B does not have the concept of encoder ratio, ignore this
+         * The MD90 does not have the concept of encoder ratio, ignore this
          * command
          */
         send=false;
@@ -280,19 +280,19 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
         sprintf(motor_call->message, "#%02dQ", axis);
         break;
     case JOG:
-        /* MCB-4B does not have jog command. Move 1 million steps */
+        /* MD-90 does not have jog command. Move 1 million steps */
         ival = (int) (fabs(115200./dval) + 0.5);
         if (ival < 2) ival=2;
         if (ival > 65535) ival = 65535;
         sprintf(motor_call->message, "#%02dC=%ld", axis, ival);
         rtnval = motor_end_trans_com(mr, drvtabptr);
-        rtnval = (RTN_STATUS) motor_start_trans_com(mr, MCB4B_cards);
-        motor_call->type = MCB4B_table[command];
+        rtnval = (RTN_STATUS) motor_start_trans_com(mr, MD90_cards);
+        motor_call->type = MD90_table[command];
         if (dval > 0.) {
-            /* This is a positive move in MCB4B coordinates */
+            /* This is a positive move in MD90 coordinates */
             sprintf(motor_call->message, "#%02dM+1000000", axis);
         } else {
-            /* This is a negative move in MCB4B coordinates */
+            /* This is a negative move in MD90 coordinates */
             sprintf(motor_call->message, "#%02dM-1000000", axis);
         }
         break;
@@ -325,7 +325,7 @@ STATIC RTN_STATUS MCB4B_build_trans(motor_cmnd command, double *parms, struct mo
        return(rtnval);
     else { 
         rtnval = motor_end_trans_com(mr, drvtabptr);
-        Debug(5, "MCB4B_send_msg: motor_end_trans_com status=%d, exit\n", rtnval); 
+        Debug(5, "MD90_send_msg: motor_end_trans_com status=%d, exit\n", rtnval); 
         return (rtnval);
     }
 }

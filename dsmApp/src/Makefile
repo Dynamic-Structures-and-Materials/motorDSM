@@ -12,8 +12,8 @@ LIBRARY_IOC = dsm
 SRCS += dsmRegister.cc
 
 # Advanced Control Systems driver support.
-SRCS += devMCB4B.c drvMCB4B.c
-SRCS += MCB4BDriver.cpp
+SRCS += devMD90.c drvMD90.c
+SRCS += MD90Driver.cpp
 
 dsm_LIBS += motor asyn
 dsm_LIBS += $(EPICS_BASE_IOC_LIBS)

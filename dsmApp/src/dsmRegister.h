@@ -37,6 +37,6 @@ USAGE... This file contains function prototypes for DSM IOC shell commands.
 #include "motordrvCom.h"
 
 /* Function prototypes. */
-extern RTN_STATUS MCB4BSetup(int, int);
-extern RTN_STATUS MCB4BConfig(int, const char *);
+extern RTN_STATUS MD90Setup(int, int);
+extern RTN_STATUS MD90Config(int, const char *);
 

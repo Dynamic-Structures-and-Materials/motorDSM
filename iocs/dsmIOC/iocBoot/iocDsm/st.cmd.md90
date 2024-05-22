@@ -24,10 +24,10 @@ asynOctetSetOutputEos("serial0", 0, "\r")
 asynSetTraceIOMask("serial0", 0, 2)
 #asynSetTraceMask("serial0", 0, 255)
 
-MCB4BCreateController("MCB4B0", "serial0", 1, 100, 5000)
+MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
 ### Motors
-dbLoadTemplate "motor.substitutions.mcb4b"
+dbLoadTemplate "motor.substitutions.md90"
 
 dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=DSM:,R=serial0,PORT=serial0,ADDR=0,OMAX=80,IMAX=80")
 

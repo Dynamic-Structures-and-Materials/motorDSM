@@ -1,4 +1,4 @@
-/* File: drvMCB4B.cc                    */
+/* File: drvMD90.cc                    */
 
 /* Device Driver Support routines for motor */
 /*
@@ -25,7 +25,7 @@
 #include <errlog.h>
 #include "motor.h"
 #include "dsmRegister.h"
-#include "drvMCB4B.h"
+#include "drvMD90.h"
 #include "asynOctetSyncIO.h"
 #include "epicsExport.h"
 
@@ -35,14 +35,14 @@
 
 #define TIMEOUT 2.0 /* Command timeout in sec */
 
-#define BUFF_SIZE 100       /* Maximum length of string to/from MCB4B */
+#define BUFF_SIZE 100       /* Maximum length of string to/from MD90 */
 
-volatile int drvMCB4BDebug = 0;
-extern "C" {epicsExportAddress(int, drvMCB4BDebug);}
+volatile int drvMD90Debug = 0;
+extern "C" {epicsExportAddress(int, drvMD90Debug);}
 
 static inline void Debug(int level, const char *format, ...) {
   #ifdef DEBUG
-    if (level < drvMCB4BDebug)
+    if (level < drvMD90Debug)
     {
       va_list pVar;
       va_start(pVar, format);
@@ -53,14 +53,14 @@ static inline void Debug(int level, const char *format, ...) {
 }
 
 /* Debugging notes:
- *   drvMCB4BDebug == 0  No debugging information is printed
- *   drvMCB4BDebug >= 1  Warning information is printed
- *   drvMCB4BDebug >= 2  Time-stamped messages are printed for each string
+ *   drvMD90Debug == 0  No debugging information is printed
+ *   drvMD90Debug >= 1  Warning information is printed
+ *   drvMD90Debug >= 2  Time-stamped messages are printed for each string
  *                       sent to and received from the controller
- *   drvMCB4BDebug >= 3  Additional debugging messages
+ *   drvMD90Debug >= 3  Additional debugging messages
  */
 
-int MCB4B_num_cards = 0;
+int MD90_num_cards = 0;
 
 /* Local data required for every driver; see "motordrvComCode.h" */
 #include        "motordrvComCode.h"
@@ -78,7 +78,7 @@ STATIC void query_done(int, int, struct mess_node *);
 
 /*----------------functions-----------------*/
 
-struct driver_table MCB4B_access =
+struct driver_table MD90_access =
 {
     motor_init,
     motor_send,
@@ -102,16 +102,16 @@ struct driver_table MCB4B_access =
     NULL
 };
 
-struct drvMCB4B_drvet
+struct drvMD90_drvet
 {
     long number;
     long (*report) (int);
     long (*init) (void);
-} drvMCB4B = {2, report, init};
+} drvMD90 = {2, report, init};
 
-extern "C" {epicsExportAddress(drvet, drvMCB4B);}
+extern "C" {epicsExportAddress(drvet, drvMD90);}
 
-STATIC struct thread_args targs = {SCAN_RATE, &MCB4B_access, 0.0};
+STATIC struct thread_args targs = {SCAN_RATE, &MD90_access, 0.0};
 
 
 /*********************************************************
@@ -120,16 +120,16 @@ STATIC struct thread_args targs = {SCAN_RATE, &MCB4B_access, 0.0};
 static long report(int level)
 {
   int card;
-  struct MCB4Bcontroller *cntrl;
+  struct MD90controller *cntrl;
 
-  if (MCB4B_num_cards <=0)
-    printf("    NO MCB4B controllers found\n");
+  if (MD90_num_cards <=0)
+    printf("    NO MD90 controllers found\n");
   else
     {
-      for (card = 0; card < MCB4B_num_cards; card++) {
+      for (card = 0; card < MD90_num_cards; card++) {
           if (motor_state[card]) {
-             cntrl = (struct MCB4Bcontroller *) motor_state[card]->DevicePrivate;
-             printf("    MCB4B controller %d, port=%s, id: %s \n",
+             cntrl = (struct MD90controller *) motor_state[card]->DevicePrivate;
+             printf("    MD90 controller %d, port=%s, id: %s \n",
                    card, cntrl->port,
                    motor_state[card]->ident);
           }
@@ -148,10 +148,10 @@ static long init()
     * support
     */
     /* Check for setup */
-    if (MCB4B_num_cards <= 0)
+    if (MD90_num_cards <= 0)
     {
-        Debug(1, "init: *MCB4B driver disabled*\n");
-        Debug(1, "MCB4BSetup() is missing from startup script.\n");
+        Debug(1, "init: *MD90 driver disabled*\n");
+        Debug(1, "MD90Setup() is missing from startup script.\n");
         return (ERROR);
     }
 
@@ -170,7 +170,7 @@ STATIC void query_done(int card, int axis, struct mess_node *nodeptr)
  *********************************************************/
 STATIC void start_status(int card)
 {
-    /* The MCB4B cannot query status or positions of all axes with a
+    /* The MD90 cannot query status or positions of all axes with a
      * single command.  This needs to be done on an axis-by-axis basis,
      * so this function does nothing
      */
@@ -265,7 +265,7 @@ STATIC int set_status(int card, int signal)
     if ((status.Bits.RA_DONE || ls_active == true) && nodeptr != 0 && nodeptr->postmsgptr != 0)
     {
         send_mess(card, nodeptr->postmsgptr, NULL);
-        /* The MCB4B always sends back a response, read it and discard */
+        /* The MD90 always sends back a response, read it and discard */
         recv_mess(card, buff, WAIT);
         nodeptr->postmsgptr = NULL;
     }
@@ -276,12 +276,12 @@ STATIC int set_status(int card, int signal)
 
 
 /*****************************************************/
-/* send a message to the MCB4B board                 */
+/* send a message to the MD90 board                 */
 /* send_mess()                                       */
 /*****************************************************/
 STATIC RTN_STATUS send_mess(int card, const char *com, const char *name)
 {
-    struct MCB4Bcontroller *cntrl;
+    struct MD90controller *cntrl;
     size_t nwrite;
 
     /* Check that card exists */
@@ -293,7 +293,7 @@ STATIC RTN_STATUS send_mess(int card, const char *com, const char *name)
 
     /* If the string is NULL just return */
     if (strlen(com) == 0) return(OK);
-    cntrl = (struct MCB4Bcontroller *) motor_state[card]->DevicePrivate;
+    cntrl = (struct MD90controller *) motor_state[card]->DevicePrivate;
 
     Debug(2, "send_mess: sending message to card %d, message=%s\n",\
                      card, com);
@@ -305,7 +305,7 @@ STATIC RTN_STATUS send_mess(int card, const char *com, const char *name)
 
 
 /*****************************************************/
-/* Read a response string from the MCB4B board */
+/* Read a response string from the MD90 board */
 /* recv_mess()                                       */
 /*****************************************************/
 STATIC int recv_mess(int card, char *com, int flag)
@@ -313,7 +313,7 @@ STATIC int recv_mess(int card, char *com, int flag)
     double timeout;
     size_t nread=0;
     asynStatus status;
-    struct MCB4Bcontroller *cntrl;
+    struct MD90controller *cntrl;
     int flush;
     int eomReason;
 
@@ -324,7 +324,7 @@ STATIC int recv_mess(int card, char *com, int flag)
         return (-1);
     }
 
-    cntrl = (struct MCB4Bcontroller *) motor_state[card]->DevicePrivate;
+    cntrl = (struct MD90controller *) motor_state[card]->DevicePrivate;
 
     Debug(3, "recv_mess entry: card %d, flag=%d\n",\
             card, flag);
@@ -363,18 +363,18 @@ STATIC int recv_mess(int card, char *com, int flag)
 
 /*****************************************************/
 /* Setup system configuration                        */
-/* MCB4BSetup()                                     */
+/* MD90Setup()                                     */
 /*****************************************************/
 RTN_STATUS
-MCB4BSetup(int num_cards,       /* maximum number of controllers in system */
+MD90Setup(int num_cards,       /* maximum number of controllers in system */
            int scan_rate)       /* polling rate - 1/60 sec units */
 {
     int itera;
 
-    if (num_cards < 1 || num_cards > MCB4B_NUM_CARDS)
-        MCB4B_num_cards = MCB4B_NUM_CARDS;
+    if (num_cards < 1 || num_cards > MD90_NUM_CARDS)
+        MD90_num_cards = MD90_NUM_CARDS;
     else
-        MCB4B_num_cards = num_cards;
+        MD90_num_cards = num_cards;
 
     /* Set motor polling task rate */
     if (scan_rate >= 1 && scan_rate <= 60)
@@ -384,15 +384,15 @@ MCB4BSetup(int num_cards,       /* maximum number of controllers in system */
 
    /*
     * Allocate space for motor_state structure pointers.  Note this must be done
-    * before MCB4BConfig is called, so it cannot be done in motor_init()
+    * before MD90Config is called, so it cannot be done in motor_init()
     * This means that we must allocate space for a card without knowing
     * if it really exists, which is not a serious problem since this is just
     * an array of pointers.
     */
-    motor_state = (struct controller **) malloc(MCB4B_num_cards *
+    motor_state = (struct controller **) malloc(MD90_num_cards *
                                                 sizeof(struct controller *));
 
-    for (itera = 0; itera < MCB4B_num_cards; itera++)
+    for (itera = 0; itera < MD90_num_cards; itera++)
         motor_state[itera] = (struct controller *) NULL;
     return (OK);
 }
@@ -400,20 +400,20 @@ MCB4BSetup(int num_cards,       /* maximum number of controllers in system */
 
 /*****************************************************/
 /* Configure a controller                            */
-/* MCB4BConfig()                                    */
+/* MD90Config()                                    */
 /*****************************************************/
 RTN_STATUS
-MCB4BConfig(int card,           /* card being configured */
+MD90Config(int card,           /* card being configured */
             const char *name)   /* port name for asyn */
 {
-    struct MCB4Bcontroller *cntrl;
+    struct MD90controller *cntrl;
 
-    if (card < 0 || card >= MCB4B_num_cards)
+    if (card < 0 || card >= MD90_num_cards)
         return (ERROR);
 
     motor_state[card] = (struct controller *) malloc(sizeof(struct controller));
-    motor_state[card]->DevicePrivate = malloc(sizeof(struct MCB4Bcontroller));
-    cntrl = (struct MCB4Bcontroller *) motor_state[card]->DevicePrivate;
+    motor_state[card]->DevicePrivate = malloc(sizeof(struct MD90controller));
+    cntrl = (struct MD90controller *) motor_state[card]->DevicePrivate;
     strcpy(cntrl->port, name);
     return (OK);
 }
@@ -429,7 +429,7 @@ MCB4BConfig(int card,           /* card being configured */
 STATIC int motor_init()
 {
     struct controller *brdptr;
-    struct MCB4Bcontroller *cntrl;
+    struct MD90controller *cntrl;
     int card_index, motor_index;
     char buff[BUFF_SIZE];
     int total_axis = 0;
@@ -439,21 +439,21 @@ STATIC int motor_init()
     initialized = true;   /* Indicate that driver is initialized. */
 
     /* Check for setup */
-    if (MCB4B_num_cards <= 0)
+    if (MD90_num_cards <= 0)
     {
-        Debug(1, "motor_init: *MCB4B driver disabled*\n");
-        Debug(1, "MCB4BSetup() is missing from startup script.\n");
+        Debug(1, "motor_init: *MD90 driver disabled*\n");
+        Debug(1, "MD90Setup() is missing from startup script.\n");
         return (ERROR);
     }
 
-    for (card_index = 0; card_index < MCB4B_num_cards; card_index++)
+    for (card_index = 0; card_index < MD90_num_cards; card_index++)
     {
         if (!motor_state[card_index])
             continue;
 
         brdptr = motor_state[card_index];
         total_cards = card_index + 1;
-        cntrl = (struct MCB4Bcontroller *) brdptr->DevicePrivate;
+        cntrl = (struct MD90controller *) brdptr->DevicePrivate;
 
         /* Initialize communications channel */
         success_rtn = pasynOctetSyncIO->connect(cntrl->port, 0, &cntrl->pasynUser, NULL);
@@ -498,7 +498,7 @@ STATIC int motor_init()
                 sprintf(buff,"#%02dQ", motor_index);
                 send_mess(card_index, buff, 0);
                 recv_mess(card_index, buff, WAIT);    /* Throw away response */
-                strcpy(brdptr->ident, "MCB-4B");
+                strcpy(brdptr->ident, "MD-90");
                 motor_info->status.All = 0;
                 motor_info->no_motion_count = 0;
                 motor_info->encoder_position = 0;
@@ -521,7 +521,7 @@ STATIC int motor_init()
 
     Debug(3, "motor_init: spawning motor task\n");
 
-    epicsThreadCreate((char *) "tMCB4B", epicsThreadPriorityMedium,
+    epicsThreadCreate((char *) "tMD90", epicsThreadPriorityMedium,
                       epicsThreadGetStackSize(epicsThreadStackMedium),
                       (EPICSTHREADFUNC) motor_task, (void *) &targs);
 
