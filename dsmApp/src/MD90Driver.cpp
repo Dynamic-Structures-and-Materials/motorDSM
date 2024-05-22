@@ -227,7 +227,7 @@ asynStatus MD90Axis::stop(double acceleration )
   asynStatus status;
   //static const char *functionName = "MD90Axis::stop";
 
-  sprintf(pC_->outString_, "#%02dQ", axisNo_);
+  sprintf(pC_->outString_, "STP");
   status = pC_->writeReadController();
   return status;
 }
