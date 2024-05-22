@@ -2,8 +2,8 @@
 < envPaths
 
 # Tell EPICS all about the record types, device-support modules, drivers, etc.
-dbLoadDatabase("../../dbd/acs.dbd")
-acs_registerRecordDeviceDriver(pdbbase)
+dbLoadDatabase("../../dbd/dsm.dbd")
+dsm_registerRecordDeviceDriver(pdbbase)
 
 # Port 2 on a Moxa
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
@@ -24,10 +24,10 @@ asynOctetSetOutputEos("serial0", 0, "\r")
 asynSetTraceIOMask("serial0", 0, 2)
 #asynSetTraceMask("serial0", 0, 255)
 
-MCB4BCreateController("MCB4B0", "serial0", 1, 100, 5000)
+MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
 ### Motors
-dbLoadTemplate "motor.substitutions.mcb4b"
+dbLoadTemplate "motor.substitutions.md90"
 
 dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=DSM:,R=serial0,PORT=serial0,ADDR=0,OMAX=80,IMAX=80")
 

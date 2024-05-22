@@ -1,6 +1,6 @@
 TOP = ../..
 include $(TOP)/configure/CONFIG
 
-IOCSH += ACS_MCB4B.iocsh
+IOCSH += DSM_MD90.iocsh
 
 include $(TOP)/configure/RULES

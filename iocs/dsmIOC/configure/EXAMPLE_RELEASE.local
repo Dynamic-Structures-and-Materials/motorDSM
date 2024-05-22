@@ -1,0 +1,6 @@
+# Use the following lines if motorDsm was built inside motor
+MOTOR=
+-include $(MOTOR)/configure/RELEASE
+# Use the following lines if motorDsm was built outside motor
+#!MOTOR_DSM=
+#!-include $(MOTOR_DSM)/configure/RELEASE.local

@@ -1,4 +1,4 @@
-/* File: drvMCB4B.h             */
+/* File: drvMD90.h             */
 
 
 /* Device Driver Support definitions for motor */
@@ -12,23 +12,23 @@
  * .01  02/24/2002  mlr  initialized from drvPM304.h
  */
 
-#ifndef	INCdrvMCB4Bh
-#define	INCdrvMCB4Bh 1
+#ifndef	INCdrvMD90h
+#define	INCdrvMD90h 1
 
 #include "motordrvCom.h"
 #include "asynDriver.h"
 
-/* MCB4B default profile. */
+/* MD90 default profile. */
 
-#define MCB4B_NUM_CARDS           4
-#define MCB4B_NUM_CHANNELS        4
+#define MD90_NUM_CARDS           4
+#define MD90_NUM_CHANNELS        4
 
 #define OUTPUT_TERMINATOR "\r"
 
-struct MCB4Bcontroller
+struct MD90controller
 {
     asynUser *pasynUser;   /* asynUser structure */
     char port[80];   /* asyn port name */
 };
 
-#endif	/* INCdrvMCB4Bh */
+#endif	/* INCdrvMD90h */

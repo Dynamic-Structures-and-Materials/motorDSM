@@ -1,6 +1,6 @@
 /*
-FILENAME... MCB4BDriver.cpp
-USAGE...    Motor driver support for the ACS MCB-4B controller.
+FILENAME... MD90Driver.cpp
+USAGE...    Motor driver support for the DSM MD-90 controller.
 
 Mark Rivers
 March 1, 2012
@@ -19,20 +19,20 @@ March 1, 2012
 #include <asynOctetSyncIO.h>
 
 #include <epicsExport.h>
-#include "MCB4BDriver.h"
+#include "MD90Driver.h"
 
 #define NINT(f) (int)((f)>0 ? (f)+0.5 : (f)-0.5)
 
-/** Creates a new MCB4BController object.
+/** Creates a new MD90Controller object.
   * \param[in] portName          The name of the asyn port that will be created for this driver
-  * \param[in] MCB4BPortName     The name of the drvAsynSerialPort that was created previously to connect to the MCB4B controller 
+  * \param[in] MD90PortName     The name of the drvAsynSerialPort that was created previously to connect to the MD90 controller 
   * \param[in] numAxes           The number of axes that this controller supports 
   * \param[in] movingPollPeriod  The time between polls when any axis is moving 
   * \param[in] idlePollPeriod    The time between polls when no axis is moving 
   */
-MCB4BController::MCB4BController(const char *portName, const char *MCB4BPortName, int numAxes, 
+MD90Controller::MD90Controller(const char *portName, const char *MD90PortName, int numAxes, 
                                  double movingPollPeriod, double idlePollPeriod)
-  :  asynMotorController(portName, numAxes, NUM_MCB4B_PARAMS, 
+  :  asynMotorController(portName, numAxes, NUM_MD90_PARAMS, 
                          0, // No additional interfaces beyond those in base class
                          0, // No additional callback interfaces beyond those in base class
                          ASYN_CANBLOCK | ASYN_MULTIDEVICE, 
@@ -41,38 +41,38 @@ MCB4BController::MCB4BController(const char *portName, const char *MCB4BPortName
 {
   int axis;
   asynStatus status;
-  MCB4BAxis *pAxis;
-  static const char *functionName = "MCB4BController::MCB4BController";
+  MD90Axis *pAxis;
+  static const char *functionName = "MD90Controller::MD90Controller";
 
-  /* Connect to MCB4B controller */
-  status = pasynOctetSyncIO->connect(MCB4BPortName, 0, &pasynUserController_, NULL);
+  /* Connect to MD90 controller */
+  status = pasynOctetSyncIO->connect(MD90PortName, 0, &pasynUserController_, NULL);
   if (status) {
     asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR, 
-      "%s: cannot connect to MCB-4B controller\n",
+      "%s: cannot connect to MD-90 controller\n",
       functionName);
   }
   for (axis=0; axis<numAxes; axis++) {
-    pAxis = new MCB4BAxis(this, axis);
+    pAxis = new MD90Axis(this, axis);
   }
 
   startPoller(movingPollPeriod, idlePollPeriod, 2);
 }
 
 
-/** Creates a new MCB4BController object.
+/** Creates a new MD90Controller object.
   * Configuration command, called directly or from iocsh
   * \param[in] portName          The name of the asyn port that will be created for this driver
-  * \param[in] MCB4BPortName       The name of the drvAsynIPPPort that was created previously to connect to the MCB4B controller 
+  * \param[in] MD90PortName       The name of the drvAsynIPPPort that was created previously to connect to the MD90 controller 
   * \param[in] numAxes           The number of axes that this controller supports 
   * \param[in] movingPollPeriod  The time in ms between polls when any axis is moving
   * \param[in] idlePollPeriod    The time in ms between polls when no axis is moving 
   */
-extern "C" int MCB4BCreateController(const char *portName, const char *MCB4BPortName, int numAxes, 
+extern "C" int MD90CreateController(const char *portName, const char *MD90PortName, int numAxes, 
                                    int movingPollPeriod, int idlePollPeriod)
 {
-  MCB4BController *pMCB4BController
-    = new MCB4BController(portName, MCB4BPortName, numAxes, movingPollPeriod/1000., idlePollPeriod/1000.);
-  pMCB4BController = NULL;
+  MD90Controller *pMD90Controller
+    = new MD90Controller(portName, MD90PortName, numAxes, movingPollPeriod/1000., idlePollPeriod/1000.);
+  pMD90Controller = NULL;
   return(asynSuccess);
 }
 
@@ -83,41 +83,41 @@ extern "C" int MCB4BCreateController(const char *portName, const char *MCB4BPort
   * If details > 0 then information is printed about each axis.
   * After printing controller-specific information it calls asynMotorController::report()
   */
-void MCB4BController::report(FILE *fp, int level)
+void MD90Controller::report(FILE *fp, int level)
 {
-  fprintf(fp, "MCB-4B motor driver %s, numAxes=%d, moving poll period=%f, idle poll period=%f\n", 
+  fprintf(fp, "MD-90 motor driver %s, numAxes=%d, moving poll period=%f, idle poll period=%f\n", 
     this->portName, numAxes_, movingPollPeriod_, idlePollPeriod_);
 
   // Call the base class method
   asynMotorController::report(fp, level);
 }
 
-/** Returns a pointer to an MCB4BAxis object.
+/** Returns a pointer to an MD90Axis object.
   * Returns NULL if the axis number encoded in pasynUser is invalid.
   * \param[in] pasynUser asynUser structure that encodes the axis index number. */
-MCB4BAxis* MCB4BController::getAxis(asynUser *pasynUser)
+MD90Axis* MD90Controller::getAxis(asynUser *pasynUser)
 {
-  return static_cast<MCB4BAxis*>(asynMotorController::getAxis(pasynUser));
+  return static_cast<MD90Axis*>(asynMotorController::getAxis(pasynUser));
 }
 
-/** Returns a pointer to an MCB4BAxis object.
+/** Returns a pointer to an MD90Axis object.
   * Returns NULL if the axis number encoded in pasynUser is invalid.
   * \param[in] axisNo Axis index number. */
-MCB4BAxis* MCB4BController::getAxis(int axisNo)
+MD90Axis* MD90Controller::getAxis(int axisNo)
 {
-  return static_cast<MCB4BAxis*>(asynMotorController::getAxis(axisNo));
+  return static_cast<MD90Axis*>(asynMotorController::getAxis(axisNo));
 }
 
 
-// These are the MCB4BAxis methods
+// These are the MD90Axis methods
 
-/** Creates a new MCB4BAxis object.
-  * \param[in] pC Pointer to the MCB4BController to which this axis belongs. 
+/** Creates a new MD90Axis object.
+  * \param[in] pC Pointer to the MD90Controller to which this axis belongs. 
   * \param[in] axisNo Index number of this axis, range 0 to pC->numAxes_-1.
   * 
   * Initializes register numbers, etc.
   */
-MCB4BAxis::MCB4BAxis(MCB4BController *pC, int axisNo)
+MD90Axis::MD90Axis(MD90Controller *pC, int axisNo)
   : asynMotorAxis(pC, axisNo),
     pC_(pC)
 {  
@@ -129,7 +129,7 @@ MCB4BAxis::MCB4BAxis(MCB4BController *pC, int axisNo)
   *
   * After printing device-specific information calls asynMotorAxis::report()
   */
-void MCB4BAxis::report(FILE *fp, int level)
+void MD90Axis::report(FILE *fp, int level)
 {
   if (level > 0) {
     fprintf(fp, "  axis %d\n",
@@ -140,11 +140,11 @@ void MCB4BAxis::report(FILE *fp, int level)
   asynMotorAxis::report(fp, level);
 }
 
-asynStatus MCB4BAxis::sendAccelAndVelocity(double acceleration, double velocity) 
+asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity) 
 {
   asynStatus status;
   int ival;
-  // static const char *functionName = "MCB4B::sendAccelAndVelocity";
+  // static const char *functionName = "MD90::sendAccelAndVelocity";
 
   // Send the velocity
   ival = NINT(fabs(115200./velocity));
@@ -155,7 +155,7 @@ asynStatus MCB4BAxis::sendAccelAndVelocity(double acceleration, double velocity)
 
   // Send the acceleration
   // acceleration is in steps/sec/sec
-  // MCB is programmed with Ramp Index (R) where:
+  // MD-90 is programmed with Ramp Index (R) where:
   //   dval (steps/sec/sec) = 720,000/(256-R) */
   //   or R=256-(720,000/dval) */
   ival = NINT(256-(720000./acceleration));
@@ -167,10 +167,10 @@ asynStatus MCB4BAxis::sendAccelAndVelocity(double acceleration, double velocity)
 }
 
 
-asynStatus MCB4BAxis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
+asynStatus MD90Axis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   asynStatus status;
-  // static const char *functionName = "MCB4BAxis::move";
+  // static const char *functionName = "MD90Axis::move";
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
   
@@ -183,10 +183,10 @@ asynStatus MCB4BAxis::move(double position, int relative, double minVelocity, do
   return status;
 }
 
-asynStatus MCB4BAxis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
+asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
   asynStatus status;
-  // static const char *functionName = "MCB4BAxis::home";
+  // static const char *functionName = "MD90Axis::home";
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
@@ -199,10 +199,10 @@ asynStatus MCB4BAxis::home(double minVelocity, double maxVelocity, double accele
   return status;
 }
 
-asynStatus MCB4BAxis::moveVelocity(double minVelocity, double maxVelocity, double acceleration)
+asynStatus MD90Axis::moveVelocity(double minVelocity, double maxVelocity, double acceleration)
 {
   asynStatus status;
-  static const char *functionName = "MCB4BAxis::moveVelocity";
+  static const char *functionName = "MD90Axis::moveVelocity";
 
   asynPrint(pasynUser_, ASYN_TRACE_FLOW,
     "%s: minVelocity=%f, maxVelocity=%f, acceleration=%f\n",
@@ -210,42 +210,42 @@ asynStatus MCB4BAxis::moveVelocity(double minVelocity, double maxVelocity, doubl
     
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
-  /* MCB-4B does not have jog command. Move 1 million steps */
+  /* MD-90 does not have jog command. Move 1 million steps */
   if (maxVelocity > 0.) {
-    /* This is a positive move in MCB4B coordinates */
+    /* This is a positive move in MD90 coordinates */
     sprintf(pC_->outString_, "#%02dI+1000000", axisNo_);
   } else {
-      /* This is a negative move in MCB4B coordinates */
+      /* This is a negative move in MD90 coordinates */
       sprintf(pC_->outString_, "#%02dI-1000000", axisNo_);
   }
   status = pC_->writeReadController();
   return status;
 }
 
-asynStatus MCB4BAxis::stop(double acceleration )
+asynStatus MD90Axis::stop(double acceleration )
 {
   asynStatus status;
-  //static const char *functionName = "MCB4BAxis::stop";
+  //static const char *functionName = "MD90Axis::stop";
 
   sprintf(pC_->outString_, "#%02dQ", axisNo_);
   status = pC_->writeReadController();
   return status;
 }
 
-asynStatus MCB4BAxis::setPosition(double position)
+asynStatus MD90Axis::setPosition(double position)
 {
   asynStatus status;
-  //static const char *functionName = "MCB4BAxis::setPosition";
+  //static const char *functionName = "MD90Axis::setPosition";
 
   sprintf(pC_->outString_, "#%02dP=%+d", axisNo_, NINT(position));
   status = pC_->writeReadController();
   return status;
 }
 
-asynStatus MCB4BAxis::setClosedLoop(bool closedLoop)
+asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 {
   asynStatus status;
-  //static const char *functionName = "MCB4BAxis::setClosedLoop";
+  //static const char *functionName = "MD90Axis::setClosedLoop";
 
   sprintf(pC_->outString_, "#%02dW=%d", axisNo_, closedLoop ? 1:0);
   status = pC_->writeReadController();
@@ -258,7 +258,7 @@ asynStatus MCB4BAxis::setClosedLoop(bool closedLoop)
   * It calls setIntegerParam() and setDoubleParam() for each item that it polls,
   * and then calls callParamCallbacks() at the end.
   * \param[out] moving A flag that is set indicating that the axis is moving (true) or done (false). */
-asynStatus MCB4BAxis::poll(bool *moving)
+asynStatus MD90Axis::poll(bool *moving)
 { 
   int done;
   int driveOn;
@@ -310,27 +310,27 @@ asynStatus MCB4BAxis::poll(bool *moving)
 }
 
 /** Code for iocsh registration */
-static const iocshArg MCB4BCreateControllerArg0 = {"Port name", iocshArgString};
-static const iocshArg MCB4BCreateControllerArg1 = {"MCB-4B port name", iocshArgString};
-static const iocshArg MCB4BCreateControllerArg2 = {"Number of axes", iocshArgInt};
-static const iocshArg MCB4BCreateControllerArg3 = {"Moving poll period (ms)", iocshArgInt};
-static const iocshArg MCB4BCreateControllerArg4 = {"Idle poll period (ms)", iocshArgInt};
-static const iocshArg * const MCB4BCreateControllerArgs[] = {&MCB4BCreateControllerArg0,
-                                                             &MCB4BCreateControllerArg1,
-                                                             &MCB4BCreateControllerArg2,
-                                                             &MCB4BCreateControllerArg3,
-                                                             &MCB4BCreateControllerArg4};
-static const iocshFuncDef MCB4BCreateControllerDef = {"MCB4BCreateController", 5, MCB4BCreateControllerArgs};
-static void MCB4BCreateContollerCallFunc(const iocshArgBuf *args)
+static const iocshArg MD90CreateControllerArg0 = {"Port name", iocshArgString};
+static const iocshArg MD90CreateControllerArg1 = {"MD-90 port name", iocshArgString};
+static const iocshArg MD90CreateControllerArg2 = {"Number of axes", iocshArgInt};
+static const iocshArg MD90CreateControllerArg3 = {"Moving poll period (ms)", iocshArgInt};
+static const iocshArg MD90CreateControllerArg4 = {"Idle poll period (ms)", iocshArgInt};
+static const iocshArg * const MD90CreateControllerArgs[] = {&MD90CreateControllerArg0,
+                                                             &MD90CreateControllerArg1,
+                                                             &MD90CreateControllerArg2,
+                                                             &MD90CreateControllerArg3,
+                                                             &MD90CreateControllerArg4};
+static const iocshFuncDef MD90CreateControllerDef = {"MD90CreateController", 5, MD90CreateControllerArgs};
+static void MD90CreateContollerCallFunc(const iocshArgBuf *args)
 {
-  MCB4BCreateController(args[0].sval, args[1].sval, args[2].ival, args[3].ival, args[4].ival);
+  MD90CreateController(args[0].sval, args[1].sval, args[2].ival, args[3].ival, args[4].ival);
 }
 
-static void MCB4BRegister(void)
+static void MD90Register(void)
 {
-  iocshRegister(&MCB4BCreateControllerDef, MCB4BCreateContollerCallFunc);
+  iocshRegister(&MD90CreateControllerDef, MD90CreateContollerCallFunc);
 }
 
 extern "C" {
-epicsExportRegistrar(MCB4BRegister);
+epicsExportRegistrar(MD90Register);
 }

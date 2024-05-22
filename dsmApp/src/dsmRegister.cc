@@ -1,6 +1,6 @@
 /*
-FILENAME...	AcsRegister.cc
-USAGE...	Register ACS motor device driver shell commands.
+FILENAME...	dsmRegister.cc
+USAGE...	Register DSM motor device driver shell commands.
 
 */
 
@@ -16,40 +16,40 @@ of this distribution.
 **********************************************************************/
 
 #include <iocsh.h>
-#include "AcsRegister.h"
+#include "dsmRegister.h"
 #include "epicsExport.h"
 
 extern "C"
 {
 
-// ACS Setup arguments
+// DSM Setup arguments
 static const iocshArg setupArg0 = {"Max. controller count", iocshArgInt};
 static const iocshArg setupArg1 = {"Polling rate", iocshArgInt};
-// ACS Config arguments
+// DSM Config arguments
 static const iocshArg configArg0 = {"Card being configured", iocshArgInt};
 static const iocshArg configArg1 = {"asyn port name", iocshArgString};
 
-static const iocshArg * const MCB4BSetupArgs[2]  = {&setupArg0, &setupArg1};
-static const iocshArg * const MCB4BConfigArgs[2] = {&configArg0, &configArg1};
+static const iocshArg * const MD90SetupArgs[2]  = {&setupArg0, &setupArg1};
+static const iocshArg * const MD90ConfigArgs[2] = {&configArg0, &configArg1};
 
-static const iocshFuncDef setupMCB4B  = {"MCB4BSetup",  2, MCB4BSetupArgs};
-static const iocshFuncDef configMCB4B = {"MCB4BConfig", 2, MCB4BConfigArgs};
+static const iocshFuncDef setupMD90  = {"MD90Setup",  2, MD90SetupArgs};
+static const iocshFuncDef configMD90 = {"MD90Config", 2, MD90ConfigArgs};
 
-static void setupMCB4BCallFunc(const iocshArgBuf *args)
+static void setupMD90CallFunc(const iocshArgBuf *args)
 {
-    MCB4BSetup(args[0].ival, args[1].ival);
+    MD90Setup(args[0].ival, args[1].ival);
 }
-static void configMCB4BCallFunc(const iocshArgBuf *args)
+static void configMD90CallFunc(const iocshArgBuf *args)
 {
-    MCB4BConfig(args[0].ival, args[1].sval);
-}
-
-static void AcsRegister(void)
-{
-    iocshRegister(&setupMCB4B, setupMCB4BCallFunc);
-    iocshRegister(&configMCB4B, configMCB4BCallFunc);
+    MD90Config(args[0].ival, args[1].sval);
 }
 
-epicsExportRegistrar(AcsRegister);
+static void dsmRegister(void)
+{
+    iocshRegister(&setupMD90, setupMD90CallFunc);
+    iocshRegister(&configMD90, configMD90CallFunc);
+}
+
+epicsExportRegistrar(dsmRegister);
 
 } // extern "C"
