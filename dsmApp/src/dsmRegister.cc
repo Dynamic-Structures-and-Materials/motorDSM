@@ -1,6 +1,6 @@
 /*
-FILENAME...	AcsRegister.cc
-USAGE...	Register ACS motor device driver shell commands.
+FILENAME...	dsmRegister.cc
+USAGE...	Register DSM motor device driver shell commands.
 
 */
 
@@ -16,16 +16,16 @@ of this distribution.
 **********************************************************************/
 
 #include <iocsh.h>
-#include "AcsRegister.h"
+#include "dsmRegister.h"
 #include "epicsExport.h"
 
 extern "C"
 {
 
-// ACS Setup arguments
+// DSM Setup arguments
 static const iocshArg setupArg0 = {"Max. controller count", iocshArgInt};
 static const iocshArg setupArg1 = {"Polling rate", iocshArgInt};
-// ACS Config arguments
+// DSM Config arguments
 static const iocshArg configArg0 = {"Card being configured", iocshArgInt};
 static const iocshArg configArg1 = {"asyn port name", iocshArgString};
 
@@ -44,12 +44,12 @@ static void configMCB4BCallFunc(const iocshArgBuf *args)
     MCB4BConfig(args[0].ival, args[1].sval);
 }
 
-static void AcsRegister(void)
+static void dsmRegister(void)
 {
     iocshRegister(&setupMCB4B, setupMCB4BCallFunc);
     iocshRegister(&configMCB4B, configMCB4BCallFunc);
 }
 
-epicsExportRegistrar(AcsRegister);
+epicsExportRegistrar(dsmRegister);
 
 } // extern "C"

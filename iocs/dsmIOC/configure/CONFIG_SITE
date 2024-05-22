@@ -37,8 +37,8 @@ CHECK_RELEASE = YES
 
 # Include motor's CONFIG_SITE.local when building inside motor
 -include $(TOP)/../../../../configure/CONFIG_SITE.local
-# Include motorAcs's CONFIG_SITE.local when building inside motorAcs
+# Include motorDsm's CONFIG_SITE.local when building inside motorDsm
 -include $(TOP)/../../configure/CONFIG_SITE.local
-# Use acsIOC's CONFIG_SITE.local
+# Use dsmIOC's CONFIG_SITE.local
 -include $(TOP)/configure/CONFIG_SITE.local
 

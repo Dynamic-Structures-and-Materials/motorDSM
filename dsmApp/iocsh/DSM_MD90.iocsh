@@ -1,4 +1,4 @@
-# ### ACS_MCB4B.iocsh ###
+# ### DSM_MCB4B.iocsh ###
 
 #- ###################################################
 #- PORT             - Serial port for communications
@@ -17,7 +17,7 @@
 #-                    Default: 100
 #- ###################################################
 
-# ACS MCB-4B serial connection settings
+# DSM MCB-4B serial connection settings
 iocshLoad("$(IP)/iocsh/setSerialParams.iocsh", "PORT=$(PORT), BAUD=19200, BITS=8, STOP=1, PARITY=none")
 asynOctetSetInputEos( "$(PORT)", -1, "\r")
 asynOctetSetOutputEos("$(PORT)", -1, "\r")

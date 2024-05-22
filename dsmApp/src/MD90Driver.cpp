@@ -1,6 +1,6 @@
 /*
 FILENAME... MCB4BDriver.cpp
-USAGE...    Motor driver support for the ACS MCB-4B controller.
+USAGE...    Motor driver support for the DSM MCB-4B controller.
 
 Mark Rivers
 March 1, 2012

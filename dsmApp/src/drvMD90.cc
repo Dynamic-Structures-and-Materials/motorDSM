@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <errlog.h>
 #include "motor.h"
-#include "AcsRegister.h"
+#include "dsmRegister.h"
 #include "drvMCB4B.h"
 #include "asynOctetSyncIO.h"
 #include "epicsExport.h"

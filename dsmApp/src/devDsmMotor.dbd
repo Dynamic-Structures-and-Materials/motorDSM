@@ -1,9 +1,9 @@
 # Advanced Control Systems driver support.
 
 # Model 1 (non-asyn) driver
-device(motor,VME_IO,devMCB4B,"ACS MCB-4B")
+device(motor,VME_IO,devMCB4B,"DSM MCB-4B")
 driver(drvMCB4B)
-registrar(AcsRegister)
+registrar(dsmRegister)
 
 # Model 3 driver
 registrar(MCB4BRegister)

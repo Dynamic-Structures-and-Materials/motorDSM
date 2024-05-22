@@ -2,8 +2,8 @@
 < envPaths
 
 # Tell EPICS all about the record types, device-support modules, drivers, etc.
-dbLoadDatabase("../../dbd/acs.dbd")
-acs_registerRecordDeviceDriver(pdbbase)
+dbLoadDatabase("../../dbd/dsm.dbd")
+dsm_registerRecordDeviceDriver(pdbbase)
 
 # Port 2 on a Moxa
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)

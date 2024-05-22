@@ -11,44 +11,44 @@ include $(TOP)/configure/CONFIG
 #=============================
 # Build the IOC application
 
-PROD_IOC = acs
-# acs.dbd will be created and installed
-DBD += acs.dbd
+PROD_IOC = dsm
+# dsm.dbd will be created and installed
+DBD += dsm.dbd
 
-# acs.dbd will be made up from these files:
-acs_DBD += base.dbd
+# dsm.dbd will be made up from these files:
+dsm_DBD += base.dbd
 
 # Include dbd files from all support applications:
 #ifdef ASYN
-acs_DBD += asyn.dbd
-acs_DBD += drvAsynSerialPort.dbd
-acs_DBD += drvAsynIPPort.dbd
+dsm_DBD += asyn.dbd
+dsm_DBD += drvAsynSerialPort.dbd
+dsm_DBD += drvAsynIPPort.dbd
 #endif
-acs_DBD += motorSupport.dbd
-acs_DBD += devAcsMotor.dbd
+dsm_DBD += motorSupport.dbd
+dsm_DBD += devDsmMotor.dbd
 
 # Add all the support libraries needed by this IOC
-acs_LIBS += Acs
-acs_LIBS += motor
+dsm_LIBS += dsm
+dsm_LIBS += motor
 #ifdef ASYN
-acs_LIBS += asyn
+dsm_LIBS += asyn
 #endif
 #ifdef SNCSEQ
-acs_LIBS += seq pv
+dsm_LIBS += seq pv
 #endif
 
-# acs_registerRecordDeviceDriver.cpp derives from acs.dbd
-acs_SRCS += acs_registerRecordDeviceDriver.cpp
+# dsm_registerRecordDeviceDriver.cpp derives from dsm.dbd
+dsm_SRCS += dsm_registerRecordDeviceDriver.cpp
 
 # Build the main IOC entry point on workstation OSs.
-acs_SRCS_DEFAULT += acsMain.cpp
-acs_SRCS_vxWorks += -nil-
+dsm_SRCS_DEFAULT += dsmMain.cpp
+dsm_SRCS_vxWorks += -nil-
 
 # Add support from base/src/vxWorks if needed
-#acs_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
+#dsm_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 # Finally link to the EPICS Base libraries
-acs_LIBS += $(EPICS_BASE_IOC_LIBS)
+dsm_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 #===========================
 

@@ -1,7 +1,7 @@
 TOP = ..
 include $(TOP)/configure/CONFIG
 
-DIRS += acsIOC
+DIRS += dsmIOC
 
 include $(TOP)/configure/RULES_TOP
 

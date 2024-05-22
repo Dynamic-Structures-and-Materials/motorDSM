@@ -1,6 +1,6 @@
 /*
-FILENAME...	AcsRegister.h
-USAGE... This file contains function prototypes for ACS IOC shell commands.
+FILENAME...	dsmRegister.h
+USAGE... This file contains function prototypes for DSM IOC shell commands.
 
 */
 
