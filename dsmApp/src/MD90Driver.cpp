@@ -269,6 +269,8 @@ asynStatus MD90Axis::poll(bool *moving)
   double position;
   asynStatus comStatus;
 
+  // TODO:  Will need to add some more error handling for the motor return codes.
+
   // Read the current motor position
   sprintf(pC_->outString_, "GEE");
   comStatus = pC_->writeReadController();
@@ -279,11 +281,12 @@ asynStatus MD90Axis::poll(bool *moving)
   setDoubleParam(pC_->motorPosition_, position);
 
   // Read the moving status of this motor
-  sprintf(pC_->outString_, "#%02dX", axisNo_);
+  sprintf(pC_->outString_, "STA");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01X=1"
-  done = (pC_->inString_[5] == '0') ? 1:0;
+  // The response string is of the form "0: Current status value: 0"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
+  done = (replyValue == '2') ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
 
