@@ -265,7 +265,7 @@ asynStatus MD90Axis::poll(bool *moving)
   double replyValue;
   int done;
   int driveOn;
-  int limit;
+  int home;
   double position;
   asynStatus comStatus;
 
@@ -290,17 +290,14 @@ asynStatus MD90Axis::poll(bool *moving)
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
 
-  // Read the limit status
-  sprintf(pC_->outString_, "#%02dE", axisNo_);
+  // Read the home status
+  sprintf(pC_->outString_, "GHS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01E=1"
-  limit = (pC_->inString_[5] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusHighLimit_, limit);
-  limit = (pC_->inString_[6] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusLowLimit_, limit);
-  limit = (pC_->inString_[7] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusAtHome_, limit);
+  // The response string is of the form "0: Home status: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
+  home = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusAtHome_, home);
 
   // Read the drive power on status
   sprintf(pC_->outString_, "#%02dW", axisNo_);
