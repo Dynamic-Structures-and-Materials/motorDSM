@@ -288,6 +288,34 @@ asynStatus MD90Axis::poll(bool *moving)
   done = (replyValue == '2') ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
+  switch(replyValue) {
+    case 0:  // Idle
+        break;
+    case 1:  // Open loop move complete
+        break;
+    case 2:  // Move in progress
+        break;
+    case 3:  // Move stopped
+        break;
+    case 4:  // Homing error
+        break;
+    case 5:  // Stance error
+        break;
+    case 6:  // Stance complete
+        break;
+    case 7:  // Open loop move error
+        break;
+    case 8:  // Closed loop move error
+        break;
+    case 9:  // Closed loop move complete
+        break;
+    case 10: // End of travel error
+        break;
+    case 11: // Ramp move error
+        break;
+    default:
+        break;
+  }
 
   // Read the home status
   sprintf(pC_->outString_, "GHS");
