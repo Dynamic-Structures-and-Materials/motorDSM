@@ -260,6 +260,9 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
   * \param[out] moving A flag that is set indicating that the axis is moving (true) or done (false). */
 asynStatus MD90Axis::poll(bool *moving)
 { 
+  int replyStatus;
+  char replyString[256];
+  double replyValue;
   int done;
   int driveOn;
   int limit;
@@ -267,11 +270,12 @@ asynStatus MD90Axis::poll(bool *moving)
   asynStatus comStatus;
 
   // Read the current motor position
-  sprintf(pC_->outString_, "#%02dP", axisNo_);
+  sprintf(pC_->outString_, "GEE");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01P=+1000"
-  position = atof(&pC_->inString_[5]);
+  // The response string is of the form "0: Current position in nanometers: 1000"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
+  position = replyValue;
   setDoubleParam(pC_->motorPosition_, position);
 
   // Read the moving status of this motor
