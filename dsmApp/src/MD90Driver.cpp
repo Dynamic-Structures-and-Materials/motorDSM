@@ -260,46 +260,79 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
   * \param[out] moving A flag that is set indicating that the axis is moving (true) or done (false). */
 asynStatus MD90Axis::poll(bool *moving)
 { 
+  int replyStatus;
+  char replyString[256];
+  int replyValue;
   int done;
   int driveOn;
-  int limit;
+  int home;
   double position;
   asynStatus comStatus;
 
+  // TODO:  Will need to add some more error handling for the motor return codes.
+
   // Read the current motor position
-  sprintf(pC_->outString_, "#%02dP", axisNo_);
+  sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01P=+1000"
-  position = atof(&pC_->inString_[5]);
+  // The response string is of the form "0: Current position in encoder counts: 1000"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
 
   // Read the moving status of this motor
-  sprintf(pC_->outString_, "#%02dX", axisNo_);
+  sprintf(pC_->outString_, "STA");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01X=1"
-  done = (pC_->inString_[5] == '0') ? 1:0;
+  // The response string is of the form "0: Current status value: 0"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  done = (replyValue == '2') ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
+  switch(replyValue) {
+    case 0:  // Idle
+        break;
+    case 1:  // Open loop move complete
+        break;
+    case 2:  // Move in progress
+        break;
+    case 3:  // Move stopped
+        break;
+    case 4:  // Homing error
+        break;
+    case 5:  // Stance error
+        break;
+    case 6:  // Stance complete
+        break;
+    case 7:  // Open loop move error
+        break;
+    case 8:  // Closed loop move error
+        break;
+    case 9:  // Closed loop move complete
+        break;
+    case 10: // End of travel error
+        break;
+    case 11: // Ramp move error
+        break;
+    default:
+        break;
+  }
 
-  // Read the limit status
-  sprintf(pC_->outString_, "#%02dE", axisNo_);
+  // Read the home status
+  sprintf(pC_->outString_, "GHS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "#01E=1"
-  limit = (pC_->inString_[5] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusHighLimit_, limit);
-  limit = (pC_->inString_[6] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusLowLimit_, limit);
-  limit = (pC_->inString_[7] == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusAtHome_, limit);
+  // The response string is of the form "0: Home status: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  home = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusAtHome_, home);
 
   // Read the drive power on status
-  sprintf(pC_->outString_, "#%02dW", axisNo_);
+  sprintf(pC_->outString_, "GPS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  driveOn = (pC_->inString_[5] == '1') ? 1:0;
+  // The response string is of the form "0: Power supply enabled state: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  driveOn = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
   setIntegerParam(pC_->motorStatusProblem_, 0);
 
