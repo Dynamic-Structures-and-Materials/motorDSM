@@ -272,10 +272,10 @@ asynStatus MD90Axis::poll(bool *moving)
   // TODO:  Will need to add some more error handling for the motor return codes.
 
   // Read the current motor position
-  sprintf(pC_->outString_, "GEE");
+  sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Current position in nanometers: 1000"
+  // The response string is of the form "0: Current position in encoder counts: 1000"
   sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
   position = replyValue;
   setDoubleParam(pC_->motorPosition_, position);
