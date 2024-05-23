@@ -299,10 +299,12 @@ asynStatus MD90Axis::poll(bool *moving)
   setIntegerParam(pC_->motorStatusAtHome_, home);
 
   // Read the drive power on status
-  sprintf(pC_->outString_, "#%02dW", axisNo_);
+  sprintf(pC_->outString_, "GPS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  driveOn = (pC_->inString_[5] == '1') ? 1:0;
+  // The response string is of the form "0: Power supply enabled state: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  driveOn = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
   setIntegerParam(pC_->motorStatusProblem_, 0);
 
