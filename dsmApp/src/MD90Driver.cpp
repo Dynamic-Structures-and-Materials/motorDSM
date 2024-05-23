@@ -262,7 +262,7 @@ asynStatus MD90Axis::poll(bool *moving)
 { 
   int replyStatus;
   char replyString[256];
-  double replyValue;
+  int replyValue;
   int done;
   int driveOn;
   int home;
@@ -276,8 +276,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Current position in encoder counts: 1000"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
-  position = replyValue;
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
 
   // Read the moving status of this motor
@@ -285,7 +284,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Current status value: 0"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   done = (replyValue == '2') ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
@@ -295,7 +294,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Home status: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &replyValue);
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   home = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusAtHome_, home);
 
