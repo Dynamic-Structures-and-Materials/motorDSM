@@ -174,10 +174,11 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
   
+  // Position specified in nanometers
   if (relative) {
-    sprintf(pC_->outString_, "#%02dI%+d", axisNo_, NINT(position));
+    sprintf(pC_->outString_, "CRM %d", NINT(position));
   } else {
-    sprintf(pC_->outString_, "#%02dG%+d", axisNo_, NINT(position));
+    sprintf(pC_->outString_, "CLM %d", NINT(position));
   }
   status = pC_->writeReadController();
   return status;
