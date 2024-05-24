@@ -28,7 +28,7 @@ asynSetTraceIOMask("serial0", 0, 2)
 asynOctetConnect("initConnection", "serial0", 0)
 asynOctetWrite("initConnection", "EPS")
 asynOctetWrite("initConnection", "SDB 10")
-asynOctetDisconnect('test')
+asynOctetDisconnect('initConnection')
 
 MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
