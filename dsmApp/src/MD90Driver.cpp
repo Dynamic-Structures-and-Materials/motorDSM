@@ -298,20 +298,31 @@ asynStatus MD90Axis::poll(bool *moving)
     case 3:  // Move stopped
         break;
     case 4:  // Homing error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 5:  // Stance error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 6:  // Stance complete
         break;
     case 7:  // Open loop move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 8:  // Closed loop move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 9:  // Closed loop move complete
         break;
     case 10: // End of travel error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
+		if (position > 0) {
+            setIntegerParam(pC_->motorStatusHighLimit_, 1);
+		} else {
+            setIntegerParam(pC_->motorStatusLowLimit_, 1);
+		}
         break;
     case 11: // Ramp move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     default:
         break;
