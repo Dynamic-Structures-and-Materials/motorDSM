@@ -174,10 +174,12 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
   
+  // Position specified in encoder steps (10 nm), but motor move commands are in nanometers
+  position = position * 10;
   if (relative) {
-    sprintf(pC_->outString_, "#%02dI%+d", axisNo_, NINT(position));
+    sprintf(pC_->outString_, "CRM %d", NINT(position));
   } else {
-    sprintf(pC_->outString_, "#%02dG%+d", axisNo_, NINT(position));
+    sprintf(pC_->outString_, "CLM %d", NINT(position));
   }
   status = pC_->writeReadController();
   return status;
@@ -190,11 +192,7 @@ asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceler
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
-  if (forwards) {
-    sprintf(pC_->outString_, "#%02dH+", axisNo_);
-  } else {
-    sprintf(pC_->outString_, "#%02dH-", axisNo_);
-  }
+  sprintf(pC_->outString_, "HOM");
   status = pC_->writeReadController();
   return status;
 }
@@ -271,7 +269,7 @@ asynStatus MD90Axis::poll(bool *moving)
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
-  // Read the current motor position
+  // Read the current motor position in encoder steps (10 nm)
   sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
@@ -298,20 +296,31 @@ asynStatus MD90Axis::poll(bool *moving)
     case 3:  // Move stopped
         break;
     case 4:  // Homing error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 5:  // Stance error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 6:  // Stance complete
         break;
     case 7:  // Open loop move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 8:  // Closed loop move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     case 9:  // Closed loop move complete
         break;
     case 10: // End of travel error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
+		if (position > 0) {
+            setIntegerParam(pC_->motorStatusHighLimit_, 1);
+		} else {
+            setIntegerParam(pC_->motorStatusLowLimit_, 1);
+		}
         break;
     case 11: // Ramp move error
+        setIntegerParam(pC_->motorStatusProblem_, 1);
         break;
     default:
         break;

@@ -5,7 +5,7 @@
 dbLoadDatabase("../../dbd/dsm.dbd")
 dsm_registerRecordDeviceDriver(pdbbase)
 
-# Port 2 on a Moxa
+# Network device
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
 # Local serial port
 #!drvAsynSerialPortConfigure("serial0", "/dev/ttyS0", 0, 0, 0)
@@ -24,6 +24,12 @@ asynOctetSetOutputEos("serial0", 0, "\r")
 asynSetTraceIOMask("serial0", 0, 2)
 #asynSetTraceMask("serial0", 0, 255)
 
+# Turn on the power supply and set the deadband
+asynOctetConnect("initConnection", "serial0", 0)
+asynOctetWrite("initConnection", "EPS")
+asynOctetWrite("initConnection", "SDB 10")
+asynOctetDisconnect('initConnection')
+
 MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
 ### Motors
@@ -36,3 +42,4 @@ iocInit
 # This IOC does not use save/restore, so set values of some PVs
 dbpf("DSM:m0.RTRY", "0")
 dbpf("DSM:m0.TWV", "0.1")
+dbpf("DSM:m0.VMAX", "0.625")
