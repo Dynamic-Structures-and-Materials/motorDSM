@@ -42,3 +42,4 @@ iocInit
 # This IOC does not use save/restore, so set values of some PVs
 dbpf("DSM:m0.RTRY", "0")
 dbpf("DSM:m0.TWV", "0.1")
+dbpf("DSM:m0.VMAX", "0.625")
