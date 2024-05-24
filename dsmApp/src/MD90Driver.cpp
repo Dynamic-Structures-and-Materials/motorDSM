@@ -174,7 +174,8 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
   
-  // Position specified in nanometers
+  // Position specified in encoder steps (10 nm), but motor move commands are in nanometers
+  position = position * 10;
   if (relative) {
     sprintf(pC_->outString_, "CRM %d", NINT(position));
   } else {
@@ -268,7 +269,7 @@ asynStatus MD90Axis::poll(bool *moving)
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
-  // Read the current motor position
+  // Read the current motor position in encoder steps (10 nm)
   sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
