@@ -191,11 +191,7 @@ asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceler
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
-  if (forwards) {
-    sprintf(pC_->outString_, "#%02dH+", axisNo_);
-  } else {
-    sprintf(pC_->outString_, "#%02dH-", axisNo_);
-  }
+  sprintf(pC_->outString_, "HOM");
   status = pC_->writeReadController();
   return status;
 }
