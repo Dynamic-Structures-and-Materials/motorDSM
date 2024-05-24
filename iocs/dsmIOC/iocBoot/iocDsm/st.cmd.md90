@@ -5,7 +5,7 @@
 dbLoadDatabase("../../dbd/dsm.dbd")
 dsm_registerRecordDeviceDriver(pdbbase)
 
-# Port 2 on a Moxa
+# Network device
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
 # Local serial port
 #!drvAsynSerialPortConfigure("serial0", "/dev/ttyS0", 0, 0, 0)
@@ -23,6 +23,11 @@ asynOctetSetInputEos("serial0", 0, "\r")
 asynOctetSetOutputEos("serial0", 0, "\r")
 asynSetTraceIOMask("serial0", 0, 2)
 #asynSetTraceMask("serial0", 0, 255)
+
+# Turn on the power supply
+asynOctetConnect("initConnection", "serial0", 0)
+asynOctetWrite("initConnection", "EPS")
+asynOctetDisconnect('test')
 
 MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
