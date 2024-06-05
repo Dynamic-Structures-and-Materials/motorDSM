@@ -27,6 +27,7 @@ public:
   asynStatus stop(double acceleration);
   asynStatus poll(bool *moving);
   asynStatus setClosedLoop(bool closedLoop);
+  asynStatus setIGain(double iGain);
 
 private:
   MD90Controller *pC_;          /**< Pointer to the asynMotorController to which this axis belongs.

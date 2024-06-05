@@ -248,6 +248,22 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
   return status;
 }
 
+/** Set the I Gain of the motor control loop.  The motor is an I- controller
+  * and has no P or D terms.
+  * \param[in] iGain The current I gain in the control loop */
+asynStatus MD90Axis::setIGain(double iGain)
+{
+  asynStatus status;
+  //static const char *functionName = "MD90Axis::setIGain";
+
+  iGain = iGain * 100;
+  if (iGain < 1) iGain = 1.0;
+  if (iGain > 100) iGain = 100.0;
+  sprintf(pC_->outString_, "SGN %d", NINT(iGain));
+  status = pC_->writeReadController();
+  return status;
+}
+
 /** Polls the axis.
   * This function reads the motor position, the limit status, the home status, the moving status, 
   * and the drive power-on status. 
