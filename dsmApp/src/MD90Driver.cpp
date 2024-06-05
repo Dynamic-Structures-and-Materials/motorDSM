@@ -232,16 +232,6 @@ asynStatus MD90Axis::stop(double acceleration )
   return status;
 }
 
-asynStatus MD90Axis::setPosition(double position)
-{
-  asynStatus status;
-  //static const char *functionName = "MD90Axis::setPosition";
-
-  sprintf(pC_->outString_, "#%02dP=%+d", axisNo_, NINT(position));
-  status = pC_->writeReadController();
-  return status;
-}
-
 asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 {
   asynStatus status;

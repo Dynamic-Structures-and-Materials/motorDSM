@@ -26,7 +26,6 @@ public:
   asynStatus home(double min_velocity, double max_velocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus poll(bool *moving);
-  asynStatus setPosition(double position);
   asynStatus setClosedLoop(bool closedLoop);
 
 private:
