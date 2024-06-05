@@ -264,6 +264,16 @@ asynStatus MD90Axis::setIGain(double iGain)
   return status;
 }
 
+asynStatus MD90Axis::doMoveToHome()
+{
+  asynStatus status;
+  //static const char *functionName = "MD90Axis::doMoveToHome";
+
+  sprintf(pC_->outString_, "CLM 0");
+  status = pC_->writeReadController();
+  return status;
+}
+
 /** Polls the axis.
   * This function reads the motor position, the limit status, the home status, the moving status, 
   * and the drive power-on status. 

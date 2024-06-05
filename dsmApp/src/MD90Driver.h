@@ -28,6 +28,7 @@ public:
   asynStatus poll(bool *moving);
   asynStatus setClosedLoop(bool closedLoop);
   asynStatus setIGain(double iGain);
+  asynStatus doMoveToHome();
 
 private:
   MD90Controller *pC_;          /**< Pointer to the asynMotorController to which this axis belongs.
