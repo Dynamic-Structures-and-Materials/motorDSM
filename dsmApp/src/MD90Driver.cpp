@@ -232,12 +232,18 @@ asynStatus MD90Axis::stop(double acceleration )
   return status;
 }
 
+/** The ACS driver used this to turn on/off the motor winding current, so
+  * we'll use this for enabling/disabling the persistent move state. */
 asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 {
   asynStatus status;
   //static const char *functionName = "MD90Axis::setClosedLoop";
 
-  sprintf(pC_->outString_, "#%02dW=%d", axisNo_, closedLoop ? 1:0);
+  if (closedLoop == 1) {
+    sprintf(pC_->outString_, "EPM");
+  } else {
+    sprintf(pC_->outString_, "DPM");
+  }
   status = pC_->writeReadController();
   return status;
 }
