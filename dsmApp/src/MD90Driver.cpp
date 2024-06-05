@@ -208,13 +208,14 @@ asynStatus MD90Axis::moveVelocity(double minVelocity, double maxVelocity, double
     
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
-  /* MD-90 does not have jog command. Move 1 million steps */
+  /* MD-90 does not have jog command. Move max 6000 steps */
+  sprintf(pC_->outString_, "SNS 6000");
   if (maxVelocity > 0.) {
     /* This is a positive move in MD90 coordinates */
-    sprintf(pC_->outString_, "#%02dI+1000000", axisNo_);
+    sprintf(pC_->outString_, "ESF");
   } else {
-      /* This is a negative move in MD90 coordinates */
-      sprintf(pC_->outString_, "#%02dI-1000000", axisNo_);
+    /* This is a negative move in MD90 coordinates */
+    sprintf(pC_->outString_, "ESB");
   }
   status = pC_->writeReadController();
   return status;
