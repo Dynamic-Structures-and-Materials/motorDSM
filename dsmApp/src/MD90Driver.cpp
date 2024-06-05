@@ -261,7 +261,7 @@ asynStatus MD90Axis::poll(bool *moving)
   int replyValue;
   int done;
   int driveOn;
-  int home;
+  int homed;
   double position;
   asynStatus comStatus;
 
@@ -330,8 +330,8 @@ asynStatus MD90Axis::poll(bool *moving)
   if (comStatus) goto skip;
   // The response string is of the form "0: Home status: 1"
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  home = (replyValue == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusAtHome_, home);
+  homed = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusHomed_, homed);
 
   // Read the drive power on status
   sprintf(pC_->outString_, "GPS");
