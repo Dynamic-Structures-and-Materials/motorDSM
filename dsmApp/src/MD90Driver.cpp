@@ -140,29 +140,26 @@ void MD90Axis::report(FILE *fp, int level)
   asynMotorAxis::report(fp, level);
 }
 
+/** Acceleration currently unsupported with MD-90 controller
+  * \param[in] acceleration  The accelerations to ramp up to max velocity
+  * \param[in] velocity      Motor velocity in steps / sec
+  */
 asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity) 
 {
   asynStatus status;
-  int ival;
+  int freq;
   // static const char *functionName = "MD90::sendAccelAndVelocity";
 
   // Send the velocity
-  ival = NINT(fabs(115200./velocity));
-  if (ival < 2) ival=2;
-  if (ival > 255) ival = 255;
-  sprintf(pC_->outString_, "#%02dV=%d", axisNo_, ival);
+  // Velocity provided in steps/sec
+  // Our unit step size of the encoder is 10 nm, but the motor moves in steps approx. 5 micrometers.
+  // Motor controller accepts step frequency in Hz.
+  freq = NINT(fabs(velocity / 500.));
+  if (freq < 5) freq=5;
+  if (freq > 125) freq = 125;
+  sprintf(pC_->outString_, "SSF %d", freq);
   status = pC_->writeReadController();
 
-  // Send the acceleration
-  // acceleration is in steps/sec/sec
-  // MD-90 is programmed with Ramp Index (R) where:
-  //   dval (steps/sec/sec) = 720,000/(256-R) */
-  //   or R=256-(720,000/dval) */
-  ival = NINT(256-(720000./acceleration));
-  if (ival < 1) ival=1;
-  if (ival > 255) ival=255;
-  sprintf(pC_->outString_, "#%02dR=%d", axisNo_, ival);
-  status = pC_->writeReadController();
   return status;
 }
 
@@ -233,7 +230,8 @@ asynStatus MD90Axis::stop(double acceleration )
 }
 
 /** The ACS driver used this to turn on/off the motor winding current, so
-  * we'll use this for enabling/disabling the persistent move state. */
+  * we'll use this for enabling/disabling the persistent move state.
+  */
 asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 {
   asynStatus status;
@@ -250,7 +248,8 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 
 /** Set the I Gain of the motor control loop.  The motor is an I- controller
   * and has no P or D terms.
-  * \param[in] iGain The current I gain in the control loop */
+  * \param[in] iGain The current I gain in the control loop
+  */
 asynStatus MD90Axis::setIGain(double iGain)
 {
   asynStatus status;
@@ -279,7 +278,8 @@ asynStatus MD90Axis::doMoveToHome()
   * and the drive power-on status. 
   * It calls setIntegerParam() and setDoubleParam() for each item that it polls,
   * and then calls callParamCallbacks() at the end.
-  * \param[out] moving A flag that is set indicating that the axis is moving (true) or done (false). */
+  * \param[out] moving A flag that is set indicating that the axis is moving (true) or done (false).
+  */
 asynStatus MD90Axis::poll(bool *moving)
 { 
   int replyStatus;

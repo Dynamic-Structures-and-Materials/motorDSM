@@ -14,9 +14,9 @@ pattern
 # DESC	Description
 # EGU	Engineering units
 # DIR	Direction
-# VELO	Velocity (EGU / s)
+# VELO	Velocity (EGU / s) (note: jog velocity set separately by JVEL)
 # VBAS	Minimum velocity (EGU / s)
-# VMAX	Maximum velocity (EGU / s) (not getting set here with basic_asyn_motor.db)
+# VMAX	Maximum velocity (EGU / s) (note: not getting set here with basic_asyn_motor.db)
 # ACCL	Acceleration (time in seconds until VELO)
 # BDST	Backlash distance
 # MRES	Motor step size (EGU)
