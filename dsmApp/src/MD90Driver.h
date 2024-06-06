@@ -10,7 +10,7 @@ March 1, 2012
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
 
-#define MAX_MD90_AXES 4
+#define MAX_MD90_AXES 1
 
 // No controller-specific parameters yet
 #define NUM_MD90_PARAMS 0  
@@ -26,8 +26,9 @@ public:
   asynStatus home(double min_velocity, double max_velocity, double acceleration, int forwards);
   asynStatus stop(double acceleration);
   asynStatus poll(bool *moving);
-  asynStatus setPosition(double position);
   asynStatus setClosedLoop(bool closedLoop);
+  asynStatus setIGain(double iGain);
+  asynStatus doMoveToHome();
 
 private:
   MD90Controller *pC_;          /**< Pointer to the asynMotorController to which this axis belongs.
