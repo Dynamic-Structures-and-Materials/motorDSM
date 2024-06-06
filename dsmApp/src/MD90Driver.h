@@ -10,7 +10,7 @@ March 1, 2012
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
 
-#define MAX_MD90_AXES 4
+#define MAX_MD90_AXES 1
 
 // No controller-specific parameters yet
 #define NUM_MD90_PARAMS 0  
