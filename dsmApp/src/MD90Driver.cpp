@@ -380,6 +380,10 @@ asynStatus MD90Axis::poll(bool *moving)
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
 
+  // set some default params
+  setIntegerParam(pC_->motorStatusHasEncoder_, 1);
+  setIntegerParam(pC_->motorStatusGainSupport_, 1);
+
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
   callParamCallbacks();
