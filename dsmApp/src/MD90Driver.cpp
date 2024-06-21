@@ -367,6 +367,14 @@ asynStatus MD90Axis::poll(bool *moving)
   sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
 
+  // Read the current motor integral gain (range 1-1000)
+  sprintf(pC_->outString_, "GGN");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Gain: 1000"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  setDoubleParam(pC_->motorIGain_, replyValue);
+
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
   callParamCallbacks();
