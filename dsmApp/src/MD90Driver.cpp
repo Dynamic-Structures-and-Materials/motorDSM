@@ -291,6 +291,8 @@ asynStatus MD90Axis::poll(bool *moving)
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
+  setIntegerParam(pC_->motorStatusProblem_, 0);
+
   // Read the drive power on status
   sprintf(pC_->outString_, "GPS");
   comStatus = pC_->writeReadController();
@@ -345,11 +347,13 @@ asynStatus MD90Axis::poll(bool *moving)
         break;
     case 10: // End of travel error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+		/*
 		if (position > 0) {
             setIntegerParam(pC_->motorStatusHighLimit_, 1);
 		} else {
             setIntegerParam(pC_->motorStatusLowLimit_, 1);
 		}
+		*/
         break;
     case 11: // Ramp move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
@@ -365,6 +369,8 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Current position in encoder counts: 1000"
   sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
+  setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
+  setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
 
   // Read the current motor integral gain (range 1-1000)
   sprintf(pC_->outString_, "GGN");
@@ -373,8 +379,6 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Gain: 1000"
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
-
-  setIntegerParam(pC_->motorStatusProblem_, 0);
 
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
