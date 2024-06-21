@@ -299,7 +299,6 @@ asynStatus MD90Axis::poll(bool *moving)
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   driveOn = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
-  setIntegerParam(pC_->motorStatusProblem_, 0);
 
   // Read the home status
   sprintf(pC_->outString_, "GHS");
@@ -374,6 +373,8 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Gain: 1000"
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
+
+  setIntegerParam(pC_->motorStatusProblem_, 0);
 
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
