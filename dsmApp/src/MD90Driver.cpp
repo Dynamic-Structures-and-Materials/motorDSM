@@ -253,9 +253,9 @@ asynStatus MD90Axis::setIGain(double iGain)
   asynStatus status;
   //static const char *functionName = "MD90Axis::setIGain";
 
-  iGain = iGain * 100;
+  iGain = iGain * 1000;
   if (iGain < 1) iGain = 1.0;
-  if (iGain > 100) iGain = 100.0;
+  if (iGain > 1000) iGain = 1000.0;
   sprintf(pC_->outString_, "SGN %d", NINT(iGain));
   status = pC_->writeReadController();
   return status;
