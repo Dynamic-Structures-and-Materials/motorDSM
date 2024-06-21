@@ -155,8 +155,6 @@ asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity)
   // Our unit step size of the encoder is 10 nm, but the motor moves in steps approx. 5 micrometers.
   // Motor controller accepts step frequency in Hz.
   freq = NINT(fabs(velocity / 500.));
-  if (freq < 5) freq=5;
-  if (freq > 125) freq = 125;
   sprintf(pC_->outString_, "SSF %d", freq);
   status = pC_->writeReadController();
 
@@ -255,9 +253,9 @@ asynStatus MD90Axis::setIGain(double iGain)
   asynStatus status;
   //static const char *functionName = "MD90Axis::setIGain";
 
-  iGain = iGain * 100;
+  iGain = iGain * 1000;
   if (iGain < 1) iGain = 1.0;
-  if (iGain > 100) iGain = 100.0;
+  if (iGain > 1000) iGain = 1000.0;
   sprintf(pC_->outString_, "SGN %d", NINT(iGain));
   status = pC_->writeReadController();
   return status;
@@ -293,13 +291,25 @@ asynStatus MD90Axis::poll(bool *moving)
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
-  // Read the current motor position in encoder steps (10 nm)
-  sprintf(pC_->outString_, "GEC");
+  setIntegerParam(pC_->motorStatusProblem_, 0);
+
+  // Read the drive power on status
+  sprintf(pC_->outString_, "GPS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Current position in encoder counts: 1000"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
-  setDoubleParam(pC_->motorPosition_, position);
+  // The response string is of the form "0: Power supply enabled state: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  driveOn = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
+
+  // Read the home status
+  sprintf(pC_->outString_, "GHS");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Home status: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  homed = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusHomed_, homed);
 
   // Read the moving status of this motor
   sprintf(pC_->outString_, "STA");
@@ -337,11 +347,13 @@ asynStatus MD90Axis::poll(bool *moving)
         break;
     case 10: // End of travel error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+		/*
 		if (position > 0) {
             setIntegerParam(pC_->motorStatusHighLimit_, 1);
 		} else {
             setIntegerParam(pC_->motorStatusLowLimit_, 1);
 		}
+		*/
         break;
     case 11: // Ramp move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
@@ -350,24 +362,27 @@ asynStatus MD90Axis::poll(bool *moving)
         break;
   }
 
-  // Read the home status
-  sprintf(pC_->outString_, "GHS");
+  // Read the current motor position in encoder steps (10 nm)
+  sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Home status: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  homed = (replyValue == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusHomed_, homed);
+  // The response string is of the form "0: Current position in encoder counts: 1000"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
+  setDoubleParam(pC_->motorPosition_, position);
+  setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
+  setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
 
-  // Read the drive power on status
-  sprintf(pC_->outString_, "GPS");
+  // Read the current motor integral gain (range 1-1000)
+  sprintf(pC_->outString_, "GGN");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Power supply enabled state: 1"
+  // The response string is of the form "0: Gain: 1000"
   sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  driveOn = (replyValue == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
-  setIntegerParam(pC_->motorStatusProblem_, 0);
+  setDoubleParam(pC_->motorIGain_, replyValue);
+
+  // set some default params
+  setIntegerParam(pC_->motorStatusHasEncoder_, 1);
+  setIntegerParam(pC_->motorStatusGainSupport_, 1);
 
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
