@@ -293,13 +293,24 @@ asynStatus MD90Axis::poll(bool *moving)
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
-  // Read the current motor position in encoder steps (10 nm)
-  sprintf(pC_->outString_, "GEC");
+  // Read the drive power on status
+  sprintf(pC_->outString_, "GPS");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Current position in encoder counts: 1000"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
-  setDoubleParam(pC_->motorPosition_, position);
+  // The response string is of the form "0: Power supply enabled state: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  driveOn = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
+  setIntegerParam(pC_->motorStatusProblem_, 0);
+
+  // Read the home status
+  sprintf(pC_->outString_, "GHS");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Home status: 1"
+  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  homed = (replyValue == '1') ? 1:0;
+  setIntegerParam(pC_->motorStatusHomed_, homed);
 
   // Read the moving status of this motor
   sprintf(pC_->outString_, "STA");
@@ -350,24 +361,13 @@ asynStatus MD90Axis::poll(bool *moving)
         break;
   }
 
-  // Read the home status
-  sprintf(pC_->outString_, "GHS");
+  // Read the current motor position in encoder steps (10 nm)
+  sprintf(pC_->outString_, "GEC");
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
-  // The response string is of the form "0: Home status: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  homed = (replyValue == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusHomed_, homed);
-
-  // Read the drive power on status
-  sprintf(pC_->outString_, "GPS");
-  comStatus = pC_->writeReadController();
-  if (comStatus) goto skip;
-  // The response string is of the form "0: Power supply enabled state: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  driveOn = (replyValue == '1') ? 1:0;
-  setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
-  setIntegerParam(pC_->motorStatusProblem_, 0);
+  // The response string is of the form "0: Current position in encoder counts: 1000"
+  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
+  setDoubleParam(pC_->motorPosition_, position);
 
   skip:
   setIntegerParam(pC_->motorStatusProblem_, comStatus ? 1:0);
