@@ -1,3 +1,4 @@
+EPICS_BASE=
 MOTOR=
 -include $(MOTOR)/modules/RELEASE.$(EPICS_HOST_ARCH).local
 # path to motorDsm is needed to build the IOC inside motorDsm, but outside motor
