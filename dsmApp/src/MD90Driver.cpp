@@ -140,6 +140,37 @@ void MD90Axis::report(FILE *fp, int level)
   asynMotorAxis::report(fp, level);
 }
 
+/** Print out message if the motor controller returns a non-zero error code
+  * \param[in] functionName  The function originating the call
+  * \param[in] reply         Reply message returned from motor controller
+  */
+asynStatus MD90Axis::parseReply(const char *functionName, const char *reply)
+{
+  int replyStatus;
+  char replyString[256];
+  int replyValue;
+  asynStatus comStatus;
+
+  comStatus = asynSuccess;
+
+  if (reply[0] == '\0') {
+    comStatus = asynError;
+	replyStatus = -1;
+  } else if ( strcmp(reply, "Unrecognized command.") == 0 ) {
+    replyStatus = 6;
+  } else {
+    sscanf(reply, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  }
+
+  if (replyStatus != 0) {
+    asynPrint(pasynUser_, ASYN_TRACE_ERROR,
+      "%s:  %s\n",
+      functionName, reply);
+  }
+
+  return comStatus;
+}
+
 /** Acceleration currently unsupported with MD-90 controller
   * \param[in] acceleration  The accelerations to ramp up to max velocity
   * \param[in] velocity      Motor velocity in steps / sec
@@ -165,7 +196,7 @@ asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity)
 asynStatus MD90Axis::move(double position, int relative, double minVelocity, double maxVelocity, double acceleration)
 {
   asynStatus status;
-  // static const char *functionName = "MD90Axis::move";
+  static const char *functionName = "MD90Axis::move";
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
   
@@ -177,6 +208,9 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
     sprintf(pC_->outString_, "CLM %d", NINT(position));
   }
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
@@ -298,7 +332,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Power supply enabled state: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   driveOn = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
 
@@ -307,7 +341,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Home status: 1"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   homed = (replyValue == '1') ? 1:0;
   setIntegerParam(pC_->motorStatusHomed_, homed);
 
@@ -316,7 +350,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Current status value: 0"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   done = (replyValue == '2') ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
@@ -367,7 +401,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Current position in encoder counts: 1000"
-  sscanf (pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
+  sscanf(pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
   setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
   setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
@@ -377,7 +411,7 @@ asynStatus MD90Axis::poll(bool *moving)
   comStatus = pC_->writeReadController();
   if (comStatus) goto skip;
   // The response string is of the form "0: Gain: 1000"
-  sscanf (pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
 
   // set some default params
