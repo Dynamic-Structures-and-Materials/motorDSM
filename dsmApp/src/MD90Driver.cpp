@@ -342,7 +342,9 @@ asynStatus MD90Axis::poll(bool *moving)
   int driveOn;
   int homed;
   double position;
+  double velocity;
   asynStatus comStatus;
+  static const char *functionName = "MD90Axis::poll";
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
@@ -377,41 +379,51 @@ asynStatus MD90Axis::poll(bool *moving)
   *moving = done ? false:true;
   switch(replyValue) {
     case 0:  // Idle
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Idle\n", functionName);
         break;
     case 1:  // Open loop move complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Open loop move complete\n", functionName);
         break;
     case 2:  // Move in progress
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Move in progress\n", functionName);
         break;
     case 3:  // Move stopped
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Move stopped\n", functionName);
         break;
     case 4:  // Homing error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Homing error\n", functionName);
         break;
     case 5:  // Stance error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Stance error (Error resetting pose during closed loop move)\n", functionName);
         break;
     case 6:  // Stance complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Stance complete (Finished resetting pose, starting extension move)\n", functionName);
         break;
     case 7:  // Open loop move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Open loop move error\n", functionName);
         break;
     case 8:  // Closed loop move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Closed loop move error\n", functionName);
         break;
     case 9:  // Closed loop move complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Closed loop move complete\n", functionName);
         break;
     case 10: // End of travel error
         setIntegerParam(pC_->motorStatusProblem_, 1);
-		/*
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  End of travel error\n", functionName);
 		if (position > 0) {
             setIntegerParam(pC_->motorStatusHighLimit_, 1);
 		} else {
             setIntegerParam(pC_->motorStatusLowLimit_, 1);
 		}
-		*/
         break;
     case 11: // Ramp move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Ramp move error\n", functionName);
         break;
     default:
         break;
@@ -424,8 +436,18 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Current position in encoder counts: 1000"
   sscanf(pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
+  setDoubleParam(pC_->motorEncoderPosition_, position);
   setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
   setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
+
+  // Read the current motor step frequency to calculate approx. set velocity in (encoder step lengths / s)
+  sprintf(pC_->outString_, "GSF");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Current step frequency: 100"
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  velocity = replyValue * 500.0;
+  setDoubleParam(pC_->motorVelocity_, velocity);
 
   // Read the current motor integral gain (range 1-1000)
   sprintf(pC_->outString_, "GGN");
@@ -434,6 +456,14 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Gain: 1000"
   sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
+
+  // Read the current motor persistent move state (using EPICS motorClosedLoop to report this)
+  sprintf(pC_->outString_, "GPM");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Current persistent move state: 1"
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  setIntegerParam(pC_->motorClosedLoop_, (replyValue == 0) ? 0:1);
 
   // set some default params
   setIntegerParam(pC_->motorStatusHasEncoder_, 1);
