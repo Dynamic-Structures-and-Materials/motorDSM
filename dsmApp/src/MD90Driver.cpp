@@ -343,6 +343,7 @@ asynStatus MD90Axis::poll(bool *moving)
   int homed;
   double position;
   asynStatus comStatus;
+  static const char *functionName = "MD90Axis::poll";
 
   // TODO:  Will need to add some more error handling for the motor return codes.
 
@@ -377,31 +378,42 @@ asynStatus MD90Axis::poll(bool *moving)
   *moving = done ? false:true;
   switch(replyValue) {
     case 0:  // Idle
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Idle\n", functionName);
         break;
     case 1:  // Open loop move complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Open loop move complete\n", functionName);
         break;
     case 2:  // Move in progress
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Move in progress\n", functionName);
         break;
     case 3:  // Move stopped
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Move stopped\n", functionName);
         break;
     case 4:  // Homing error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Homing error\n", functionName);
         break;
     case 5:  // Stance error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Stance error (Error resetting pose during closed loop move)\n", functionName);
         break;
     case 6:  // Stance complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Stance complete (Finished resetting pose, starting extension move)\n", functionName);
         break;
     case 7:  // Open loop move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Open loop move error\n", functionName);
         break;
     case 8:  // Closed loop move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Closed loop move error\n", functionName);
         break;
     case 9:  // Closed loop move complete
+        asynPrint(pasynUser_, ASYN_TRACE_FLOW, "%s:  Closed loop move complete\n", functionName);
         break;
     case 10: // End of travel error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  End of travel error\n", functionName);
 		/*
 		if (position > 0) {
             setIntegerParam(pC_->motorStatusHighLimit_, 1);
@@ -412,6 +424,7 @@ asynStatus MD90Axis::poll(bool *moving)
         break;
     case 11: // Ramp move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
+        asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  Ramp move error\n", functionName);
         break;
     default:
         break;
