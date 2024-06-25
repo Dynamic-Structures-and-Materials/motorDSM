@@ -1,0 +1,33 @@
+file "$(MOTOR)/db/basic_asyn_motor.db"
+{
+pattern
+{P,    N,  M,       DTYP,       PORT,  ADDR,  DESC,   EGU, DIR, VELO, VBAS,  VMAX,  ACCL, BDST, BVEL, BACC, MRES,   PREC, DHLM, DLLM, INIT}
+{DSM:, 0, "m$(N)", "asynMotor", MD900, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 1, "m$(N)", "asynMotor", MD901, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 2, "m$(N)", "asynMotor", MD902, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 3, "m$(N)", "asynMotor", MD903, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 4, "m$(N)", "asynMotor", MD904, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 5, "m$(N)", "asynMotor", MD905, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 6, "m$(N)", "asynMotor", MD906, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+{DSM:, 7, "m$(N)", "asynMotor", MD907, 0,    "MD-90", mm,  Pos, 0.5,  0.025, 0.625, 0,    0,    0.03, 0,    .00001, 2,    20,   -20,  ""}
+}
+
+# P		IOC prefix
+# N		Port number
+# M		Record name pattern
+# DTYP	Datatype
+# PORT	Port
+# ADDR	Address
+# DESC	Description
+# EGU	Engineering units
+# DIR	Direction
+# VELO	Velocity (EGU / s) (note: jog velocity set separately by JVEL)
+# VBAS	Minimum velocity (EGU / s)
+# VMAX	Maximum velocity (EGU / s) (note: not getting set here with basic_asyn_motor.db)
+# ACCL	Acceleration (time in seconds until VELO)
+# BDST	Backlash distance
+# MRES	Motor step size (EGU)
+# PREC	Display precision number of decimal places
+# DHLM	Dial high travel limit (EGU)
+# DLLM	Dial low travel limit (EGU)
+# INIT	Initialization string (seems to be unused/broken)
