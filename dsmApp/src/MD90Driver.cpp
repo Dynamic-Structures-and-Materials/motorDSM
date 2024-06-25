@@ -179,7 +179,7 @@ asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity)
 {
   asynStatus status;
   int freq;
-  // static const char *functionName = "MD90::sendAccelAndVelocity";
+  static const char *functionName = "MD90::sendAccelAndVelocity";
 
   // Send the velocity
   // Velocity provided in steps/sec
@@ -188,6 +188,9 @@ asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity)
   freq = NINT(fabs(velocity / 500.));
   sprintf(pC_->outString_, "SSF %d", freq);
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
 
   return status;
 }
@@ -217,12 +220,15 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
 asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
   asynStatus status;
-  // static const char *functionName = "MD90Axis::home";
+  static const char *functionName = "MD90Axis::home";
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
   sprintf(pC_->outString_, "HOM");
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
@@ -248,16 +254,22 @@ asynStatus MD90Axis::moveVelocity(double minVelocity, double maxVelocity, double
     sprintf(pC_->outString_, "ESB");
   }
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
 asynStatus MD90Axis::stop(double acceleration )
 {
   asynStatus status;
-  //static const char *functionName = "MD90Axis::stop";
+  static const char *functionName = "MD90Axis::stop";
 
   sprintf(pC_->outString_, "STP");
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
@@ -267,7 +279,7 @@ asynStatus MD90Axis::stop(double acceleration )
 asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 {
   asynStatus status;
-  //static const char *functionName = "MD90Axis::setClosedLoop";
+  static const char *functionName = "MD90Axis::setClosedLoop";
 
   if (closedLoop == 1) {
     sprintf(pC_->outString_, "EPM");
@@ -275,6 +287,9 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
     sprintf(pC_->outString_, "DPM");
   }
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
@@ -285,23 +300,29 @@ asynStatus MD90Axis::setClosedLoop(bool closedLoop)
 asynStatus MD90Axis::setIGain(double iGain)
 {
   asynStatus status;
-  //static const char *functionName = "MD90Axis::setIGain";
+  static const char *functionName = "MD90Axis::setIGain";
 
   iGain = iGain * 1000;
   if (iGain < 1) iGain = 1.0;
   if (iGain > 1000) iGain = 1000.0;
   sprintf(pC_->outString_, "SGN %d", NINT(iGain));
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
 asynStatus MD90Axis::doMoveToHome()
 {
   asynStatus status;
-  //static const char *functionName = "MD90Axis::doMoveToHome";
+  static const char *functionName = "MD90Axis::doMoveToHome";
 
   sprintf(pC_->outString_, "CLM 0");
   status = pC_->writeReadController();
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
   return status;
 }
 
