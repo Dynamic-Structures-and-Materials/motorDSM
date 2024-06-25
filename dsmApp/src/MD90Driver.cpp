@@ -415,13 +415,11 @@ asynStatus MD90Axis::poll(bool *moving)
     case 10: // End of travel error
         setIntegerParam(pC_->motorStatusProblem_, 1);
         asynPrint(pasynUser_, ASYN_TRACE_ERROR, "%s:  End of travel error\n", functionName);
-		/*
 		if (position > 0) {
             setIntegerParam(pC_->motorStatusHighLimit_, 1);
 		} else {
             setIntegerParam(pC_->motorStatusLowLimit_, 1);
 		}
-		*/
         break;
     case 11: // Ramp move error
         setIntegerParam(pC_->motorStatusProblem_, 1);
