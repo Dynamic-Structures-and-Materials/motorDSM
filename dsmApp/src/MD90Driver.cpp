@@ -438,6 +438,7 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Current position in encoder counts: 1000"
   sscanf(pC_->inString_, "%d: %[^:]: %lf", &replyStatus, replyString, &position);
   setDoubleParam(pC_->motorPosition_, position);
+  setDoubleParam(pC_->motorEncoderPosition_, position);
   setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
   setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
 
@@ -457,6 +458,14 @@ asynStatus MD90Axis::poll(bool *moving)
   // The response string is of the form "0: Gain: 1000"
   sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
   setDoubleParam(pC_->motorIGain_, replyValue);
+
+  // Read the current motor persistent move state (using EPICS motorClosedLoop to report this)
+  sprintf(pC_->outString_, "GPM");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Current persistent move state: 1"
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  setIntegerParam(pC_->motorClosedLoop_, (replyValue == 0) ? 0:1);
 
   // set some default params
   setIntegerParam(pC_->motorStatusHasEncoder_, 1);
