@@ -14,6 +14,16 @@ motorDSM can also be built outside of motor by copying it's ``configure/EXAMPLE_
 
 motorDSM contains an example IOC that is built if ``configure/CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of the driver module.  Copy ``iocs/dsmIOC/configure/EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and uncomment and set the paths for the appropriate lines depending on whether motorDSM was built inside the motor module or independently.
 
+To run the example IOC, in the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run
+
+    $ ../../bin/linux-x86_64/dsm st.cmd.md90
+
+for one attached MD-90 controller, or
+
+    $ ../../bin/linux-x86_64/dsm st.cmd.md90.multi
+
+for eight attached MD-90 controllers.
+
 ------------------------
 
 To set up a full EPICS stack for development and testing, install and configure
