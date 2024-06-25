@@ -342,6 +342,7 @@ asynStatus MD90Axis::poll(bool *moving)
   int driveOn;
   int homed;
   double position;
+  double velocity;
   asynStatus comStatus;
   static const char *functionName = "MD90Axis::poll";
 
@@ -439,6 +440,15 @@ asynStatus MD90Axis::poll(bool *moving)
   setDoubleParam(pC_->motorPosition_, position);
   setIntegerParam(pC_->motorStatusAtHome_, (position == 0) ? 1:0); // home limit switch
   setIntegerParam(pC_->motorStatusHome_, (position == 0) ? 1:0); // at home position
+
+  // Read the current motor step frequency to calculate approx. set velocity in (encoder step lengths / s)
+  sprintf(pC_->outString_, "GSF");
+  comStatus = pC_->writeReadController();
+  if (comStatus) goto skip;
+  // The response string is of the form "0: Current step frequency: 100"
+  sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
+  velocity = replyValue * 500.0;
+  setDoubleParam(pC_->motorVelocity_, velocity);
 
   // Read the current motor integral gain (range 1-1000)
   sprintf(pC_->outString_, "GGN");
