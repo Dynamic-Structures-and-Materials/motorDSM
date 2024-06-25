@@ -34,6 +34,7 @@ private:
   MD90Controller *pC_;          /**< Pointer to the asynMotorController to which this axis belongs.
                                    *   Abbreviated because it is used very frequently */
   asynStatus sendAccelAndVelocity(double accel, double velocity);
+  asynStatus parseReply(const char *functionName, const char *reply);
   
 friend class MD90Controller;
 };

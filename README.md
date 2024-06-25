@@ -10,12 +10,19 @@ motorDSM is a submodule of [motor](https://github.com/epics-modules/motor).
 When motorDSM is built in the ``motor/modules`` directory, no manual
 configuration is needed.
 
-motorDSM can also be built outside of motor by copying it's
-``EXAMPLE_RELEASE.local`` file to ``RELEASE.local`` and defining the paths to
-``EPICS_BASE``, ``MOTOR``, and itself.
+motorDSM can also be built outside of motor by copying it's ``configure/EXAMPLE_RELEASE.local`` file to ``RELEASE.local`` and defining the paths to ``EPICS_BASE``, ``MOTOR``, and itself.
 
-motorDSM contains an example IOC that is built if ``CONFIG_SITE.local`` sets
-``BUILD_IOCS = YES``.  The example IOC can be built outside of driver module.
+motorDSM contains an example IOC that is built if ``configure/CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of the driver module.  Copy ``iocs/dsmIOC/configure/EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and uncomment and set the paths for the appropriate lines depending on whether motorDSM was built inside the motor module or independently.
+
+To run the example IOC, in the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run
+
+    $ ../../bin/linux-x86_64/dsm st.cmd.md90
+
+for one attached MD-90 controller, or
+
+    $ ../../bin/linux-x86_64/dsm st.cmd.md90.multi
+
+for eight attached MD-90 controllers.
 
 ------------------------
 
@@ -116,12 +123,16 @@ motorDSM (this package)
     $ cd $SUPPORT
     $ git clone git@github.com:Binary-Coalescence/motorDSM.git
 
+In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``
+and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
+
 In ``motorDSM/configure``, copy ``EXAMPLE_CONFIG_SITE.local``
 to ``CONFIG_SITE.local`` and set:  
 	BUILD_IOCS = YES
 
-In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``
-and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
+In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to
+``RELEASE.local``.  Comment out the "if built inside motor" lines, uncomment the
+"if built outside motor" lines, and set the path for ``MOTOR_DSM``.
 
     $ cd motorDSM
     $ make distclean
