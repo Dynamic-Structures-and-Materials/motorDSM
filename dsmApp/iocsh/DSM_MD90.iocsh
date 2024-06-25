@@ -18,8 +18,8 @@
 #- ###################################################
 
 # DSM MD-90 serial connection settings
-iocshLoad("$(IP)/iocsh/setSerialParams.iocsh", "PORT=$(PORT), BAUD=19200, BITS=8, STOP=1, PARITY=none")
+iocshLoad("$(IP)/iocsh/setSerialParams.iocsh", "PORT=$(PORT), BAUD=115200, BITS=8, STOP=1, PARITY=none")
 asynOctetSetInputEos( "$(PORT)", -1, "\r")
 asynOctetSetOutputEos("$(PORT)", -1, "\r")
 
-MD90CreateController("$(INSTANCE)", "$(PORT)", $(NUM_AXES=1), $(MOVING_POLL=$(POLL_RATE=100)), $(IDLE_POLL=$(POLL_RATE=100)))
+MD90CreateController("$(INSTANCE)", "$(PORT)", $(NUM_AXES=1), $(MOVING_POLL=$(POLL_RATE=100)), $(IDLE_POLL=$(POLL_RATE=1000)))
