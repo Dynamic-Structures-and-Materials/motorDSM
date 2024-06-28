@@ -23,15 +23,13 @@ for eight attached MD-90 controllers.  You may need to change the path(s) for th
 
 ------------------------
 
-To set up a full EPICS stack for development and testing, install and configure
-all of the following dependencies:
+To set up a full EPICS stack for development and testing, install and configure all of the following dependencies:
 
 ------------------------
 epics-base
 ------------------------
 
-Install make, gcc, and perl packages if not already installed, then clone and
-build epics-base:
+Install make, gcc, and perl packages if not already installed, then clone and build epics-base:
 
     $ export SUPPORT=/path/to/install/directory
     $ cd $SUPPORT
@@ -48,8 +46,7 @@ asyn
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/asyn.git
 
-You may need to install (on Arch Linux) ``rpcsvc-proto`` package to get ``rpcgen``
-binary needed to make asyn.
+You may need to install (on Arch Linux) ``rpcsvc-proto`` package to get ``rpcgen`` binary needed to make asyn.
 
 In ``asyn/configure``, create the file ``RELEASE.local`` with contents:  
 SUPPORT=/path/to/install/directory  
@@ -57,8 +54,7 @@ EPICS_BASE=/path/to/epics-base
 
 In ``asyn/configure``, create ``CONFIG_SITE.local`` file with the line:  
 	TIRPC=YES  
-if appropriate header files are in ``/usr/include/tirpc/rpc`` instead
-of ``/usr/include/rpc``.
+if appropriate header files are in ``/usr/include/tirpc/rpc`` instead of ``/usr/include/rpc``.
 
     $ cd $SUPPORT/asyn
     $ make clean
@@ -74,11 +70,9 @@ seq
 
 Install the ``re2c`` package (Arch) if needed.
 
-Create ``seq/configure/RELEASE.local`` and set path for ``EPICS_BASE``.  
-(Note this package seems to forget to git-ignore the .local file.)
+Create ``seq/configure/RELEASE.local`` and set path for ``EPICS_BASE``.  (Note this package seems to forget to git-ignore the .local file.)
 
-Edit ``seq/configure/RELEASE`` to add the missing '-' before include for ``ISIS_CONFIG``
-on the next to last line.  This seems to be a typo.
+Edit ``seq/configure/RELEASE`` to add the missing '-' before the ``include`` for ``ISIS_CONFIG`` on the next to last line.  This seems to be a typo.
 
     $ cd $SUPPORT/seq
     $ make clean
@@ -92,8 +86,7 @@ motor
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/motor.git
 
-Create ``motor/configure/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ``,
-and ``EPICS_BASE`` to the appropriate paths.
+Create ``motor/configure/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ``, and ``EPICS_BASE`` to the appropriate paths.
 
     $ cd $SUPPORT/motor
     $ make distclean
@@ -107,16 +100,12 @@ motorDSM (this package)
     $ cd $SUPPORT
     $ git clone git@github.com:Binary-Coalescence/motorDSM.git
 
-In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``
-and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
+In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
 
-In ``motorDSM/configure``, copy ``EXAMPLE_CONFIG_SITE.local``
-to ``CONFIG_SITE.local`` and uncomment to set:  
+In ``motorDSM/configure``, copy ``EXAMPLE_CONFIG_SITE.local`` to ``CONFIG_SITE.local`` and uncomment to set:  
 	BUILD_IOCS = YES
 
-In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to
-``RELEASE.local``.  Comment out the "if built inside motor" lines, uncomment the
-"if built outside motor" lines, and set the path for ``MOTOR_DSM``.
+In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``.  Comment out the "if built inside motor" lines, uncomment the "if built outside motor" lines, and set the path for ``MOTOR_DSM``.
 
     $ cd $SUPPORT/motorDSM
     $ make distclean
