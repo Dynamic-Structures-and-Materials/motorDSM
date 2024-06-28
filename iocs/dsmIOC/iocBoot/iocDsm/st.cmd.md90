@@ -9,20 +9,14 @@ dsm_registerRecordDeviceDriver(pdbbase)
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
 # Local serial port
 drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)
-#!drvAsynSerialPortConfigure("serial0", "/tmp/motorport", 0, 0, 0)
 asynSetOption("serial0", 0, "baud", "115200")
 asynSetOption("serial0", 0, "bits", "8")
 asynSetOption("serial0", 0, "parity", "none")
 asynSetOption("serial0", 0, "stop", "1")
 
-# not sure if these two are needed or what they should be set to:
-#!asynSetOption("serial0", 0, "clocal", "Y")
-#!asynSetOption("serial0", 0, "crtscts", "Y")
-
 asynOctetSetInputEos("serial0", 0, "\r")
 asynOctetSetOutputEos("serial0", 0, "\r")
 asynSetTraceIOMask("serial0", 0, 2)
-#asynSetTraceMask("serial0", 0, 255)
 
 # Turn on the power supply and set the deadband
 asynOctetConnect("initConnection", "serial0", 0)
@@ -34,7 +28,6 @@ MD90CreateController("MD900", "serial0", 1, 100, 5000)
 
 ### Motors
 dbLoadTemplate "motor.substitutions.md90"
-
 dbLoadRecords("$(ASYN)/db/asynRecord.db", "P=DSM:,R=serial0,PORT=serial0,ADDR=0,OMAX=80,IMAX=80")
 
 iocInit
