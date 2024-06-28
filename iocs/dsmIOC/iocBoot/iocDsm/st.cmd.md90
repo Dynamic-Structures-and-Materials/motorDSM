@@ -8,8 +8,8 @@ dsm_registerRecordDeviceDriver(pdbbase)
 # Network device
 #!drvAsynIPPortConfigure("serial0", "192.168.1.16:4002",0,0,0)
 # Local serial port
-#!drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)
-drvAsynSerialPortConfigure("serial0", "/tmp/motorport", 0, 0, 0)
+drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)
+#!drvAsynSerialPortConfigure("serial0", "/tmp/motorport", 0, 0, 0)
 asynSetOption("serial0", 0, "baud", "115200")
 asynSetOption("serial0", 0, "bits", "8")
 asynSetOption("serial0", 0, "parity", "none")
