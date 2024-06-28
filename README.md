@@ -1,14 +1,11 @@
 motorDSM
 ==========
 
-EPICS motor drivers for the following [Dynamic Structures and
-Materials](https://www.dynamic-structures.com/) motor controllers: MD-90
+EPICS motor drivers for the following [Dynamic Structures and Materials](https://www.dynamic-structures.com/) motor controllers: MD-90
 
 [![Build Status](https://github.com/Binary-Coalescence/motorDSM/actions/workflows/ci-scripts-build.yml/badge.svg)](https://github.com/Binary-Coalescence/motorDSM/actions/workflows/ci-scripts-build.yml)
 
-motorDSM is a submodule of [motor](https://github.com/epics-modules/motor).
-When motorDSM is built in the ``motor/modules`` directory, no manual
-configuration is needed.
+motorDSM is a submodule of [motor](https://github.com/epics-modules/motor).  When motorDSM is built in the ``motor/modules`` directory, no manual configuration is needed.
 
 motorDSM can also be built outside of motor by copying it's ``configure/EXAMPLE_RELEASE.local`` file to ``RELEASE.local`` and defining the paths to ``EPICS_BASE``, ``MOTOR``, and itself.
 
@@ -22,19 +19,17 @@ for one attached MD-90 controller, or
 
     $ ../../bin/linux-x86_64/dsm st.cmd.md90.multi
 
-for eight attached MD-90 controllers.
+for eight attached MD-90 controllers.  You may need to change the path(s) for the serial port(s) in ``st.cmd.md90`` or ``st.cmd.md90.multi`` if the MD-90 is not attached at ``/dev/ttyUSB0``.
 
 ------------------------
 
-To set up a full EPICS stack for development and testing, install and configure
-all of the following dependencies:
+To set up a full EPICS stack for development and testing, install and configure all of the following dependencies:
 
 ------------------------
 epics-base
 ------------------------
 
-Install make, gcc, and perl packages if not already installed, then clone and
-build epics-base:
+Install make, gcc, and perl packages if not already installed, then clone and build epics-base:
 
     $ export SUPPORT=/path/to/install/directory
     $ cd $SUPPORT
@@ -51,18 +46,17 @@ asyn
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/asyn.git
 
-Needed to install (on Arch Linux) ``rpcsvc-proto`` package to get ``rpcgen``
-binary needed to make asyn.
+You may need to install (on Arch Linux) ``rpcsvc-proto`` package to get ``rpcgen`` binary needed to make asyn.
 
-In ``asyn/configure``, copy ``RELEASE`` to ``RELEASE.local`` and set ``SUPPORT``
-and ``EPICS_BASE`` paths.
+In ``asyn/configure``, create the file ``RELEASE.local`` with contents:  
+SUPPORT=/path/to/install/directory  
+EPICS_BASE=/path/to/epics-base
 
 In ``asyn/configure``, create ``CONFIG_SITE.local`` file with the line:  
 	TIRPC=YES  
-if appropriate header files are in ``/usr/include/tirpc/rpc`` instead
-of ``/usr/include/rpc``.
+if appropriate header files are in ``/usr/include/tirpc/rpc`` instead of ``/usr/include/rpc``.
 
-    $ cd asyn
+    $ cd $SUPPORT/asyn
     $ make clean
     $ make
 
@@ -74,15 +68,13 @@ seq
     $ cd $SUPPORT
     $ git clone git@github.com:ISISComputingGroup/EPICS-seq.git seq
 
-Install the ``re2c`` package (Arch).
+Install the ``re2c`` package (Arch) if needed.
 
-Create ``seq/configure/RELEASE.local`` and set path for ``EPICS_BASE``.  
-(Note this package seems to forget to git-ignore the .local file.)
+Create ``seq/configure/RELEASE.local`` and set path for ``EPICS_BASE``.  (Note this package seems to forget to git-ignore the .local file.)
 
-Edit ``seq/configure/RELEASE`` to add the missing '-' before include for ``ISIS_CONFIG``
-on the next to last line.  Seems to be a typo.
+Edit ``seq/configure/RELEASE`` to add the missing '-' before the ``include`` for ``ISIS_CONFIG`` on the next to last line.  This seems to be a typo.
 
-    $ cd seq
+    $ cd $SUPPORT/seq
     $ make clean
     $ make
 
@@ -94,24 +86,9 @@ motor
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/motor.git
 
-Optionally, if you want to install additional motor drivers:
+Create ``motor/configure/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ``, and ``EPICS_BASE`` to the appropriate paths.
 
-    $ cd motor
-    $ git submodule init
-    $ git submodule update modules/motorAcs
-    $ git submodule update modules/foo
-    $ git submodule update modules/bar
-
-Optionally, edit ``motor/modules/Makefile`` and comment out all unused driver
-submodules.
-
-Optionally, create ``motor/config/CONFIG_SITE.local`` with the line:  
-	BUILD_IOCS = YES
-
-Create ``motor/config/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ``,
-and ``EPICS_BASE`` to the appropriate paths.
-
-    $ cd motor
+    $ cd $SUPPORT/motor
     $ make distclean
     $ make
 
@@ -123,17 +100,13 @@ motorDSM (this package)
     $ cd $SUPPORT
     $ git clone git@github.com:Binary-Coalescence/motorDSM.git
 
-In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``
-and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
+In ``motorDSM/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and set paths for ``EPICS_BASE``, ``MOTOR``, and ``MOTOR_DSM``.
 
-In ``motorDSM/configure``, copy ``EXAMPLE_CONFIG_SITE.local``
-to ``CONFIG_SITE.local`` and set:  
+In ``motorDSM/configure``, copy ``EXAMPLE_CONFIG_SITE.local`` to ``CONFIG_SITE.local`` and uncomment to set:  
 	BUILD_IOCS = YES
 
-In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to
-``RELEASE.local``.  Comment out the "if built inside motor" lines, uncomment the
-"if built outside motor" lines, and set the path for ``MOTOR_DSM``.
+In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEASE.local``.  Comment out the "if built inside motor" lines, uncomment the "if built outside motor" lines, and set the path for ``MOTOR_DSM``.
 
-    $ cd motorDSM
+    $ cd $SUPPORT/motorDSM
     $ make distclean
     $ make
