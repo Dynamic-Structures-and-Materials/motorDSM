@@ -1,3 +1,22 @@
+# motorDSM Releases
+
+## __v0.9.0-alpha__
+
+### Changes since motorAcs R1-1-1
+
+#### New features
+* Global rename Acs -> DSM and MCB-4B -> MD-90
+* Updated motor controller and axis methods to work with the DSM MD-90 controller
+* Updated example IOC startup scripts for the MD-90
+
+#### Modifications to existing features
+* Removed Acs controller interface
+
+#### Bug fixes
+* None
+
+
+
 # motorAcs Releases
 
 ## __R1-1-1 (2023-04-11)__
