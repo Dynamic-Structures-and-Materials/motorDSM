@@ -2,6 +2,9 @@
 FILENAME...   MD90Driver.h
 USAGE...      Motor driver support for the DSM MD-90 controller.
 
+Mark Rivers
+March 1, 2012
+
 */
 
 #include "asynMotorController.h"
@@ -11,8 +14,6 @@ USAGE...      Motor driver support for the DSM MD-90 controller.
 
 // No controller-specific parameters yet
 #define NUM_MD90_PARAMS 0  
-
-#define COUNTS_PER_STEP    1000.0
 
 class epicsShareClass MD90Axis : public asynMotorAxis
 {
