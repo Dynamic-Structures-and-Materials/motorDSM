@@ -183,7 +183,7 @@ asynStatus MD90Axis::sendAccelAndVelocity(double acceleration, double velocity)
 
   // Send the velocity
   // Velocity provided in steps/sec
-  // Our unit step size of the encoder is 10 nm, but the motor moves in steps approx. 5 micrometers.
+  // Our unit step size of the encoder is 10 nm, but the motor moves in steps approx. 10 micrometers.
   // Motor controller accepts step frequency in Hz.
   freq = NINT(fabs(velocity / COUNTS_PER_STEP));
   sprintf(pC_->outString_, "SSF %d", freq);
