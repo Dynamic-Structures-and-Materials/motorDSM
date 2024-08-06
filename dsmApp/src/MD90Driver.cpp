@@ -230,8 +230,10 @@ asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceler
   // The MD-90 will start the home routine in the direction of the last move
   // Here we first make a small move to set the desired direction before homing
 
-  sprintf(pC_->outString_, "SNS %d", SMALL_NSTEPS);
-  status = pC_->writeReadController();
+  if (!status) {
+    sprintf(pC_->outString_, "SNS %d", SMALL_NSTEPS);
+    status = pC_->writeReadController();
+  }
   if (!status) {
     status = parseReply(functionName, pC_->inString_);
   }
@@ -241,18 +243,21 @@ asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceler
   } else {
     sprintf(pC_->outString_, "ESB");
   }
-  status = pC_->writeReadController();
+  if (!status) {
+    status = pC_->writeReadController();
+  }
   if (!status) {
     status = parseReply(functionName, pC_->inString_);
   }
 
-  // Wait for the move to complete, then home
+  if (!status) {
+    // Wait for the move to complete, then home
+    sleepTime = SLEEP_MARGIN * SMALL_NSTEPS * COUNTS_PER_STEP / maxVelocity;
+    std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
-  sleepTime = SLEEP_MARGIN * SMALL_NSTEPS * COUNTS_PER_STEP / maxVelocity;
-  std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
-
-  sprintf(pC_->outString_, "HOM");
-  status = pC_->writeReadController();
+    sprintf(pC_->outString_, "HOM");
+    status = pC_->writeReadController();
+  }
   if (!status) {
     status = parseReply(functionName, pC_->inString_);
   }
