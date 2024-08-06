@@ -102,8 +102,7 @@ In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEA
 Configuring the IOC server
 -------------------------------------------------
 
-The following steps must be used in either st.cmd.md90 (for a single unit) or in st.cmd.md90.multiple (for multiple units).
-st.cmd.md90.multiple includes 8 motors predefined on /dev/ttyUSB0 through /dev/ttyUSB7. Comment out all motors you don't need.  
+The directory `$SUPPORT/motorDSM/iocs/dsmIOC/iocBoot/iocDSM` contains example configurations for the IOC server that runs on the computer the motor controllers are attached to.  The `st.cmd.md90` and `motor.substitutions.md90` files provide an example to configure and run one attached MD-90.  The `st.cmd.md90.multi` and `motor.substitutions.md90.multi` files provide an example to configure and run eight attached MD-90s connected on ports `dev/ttyUSB0` through `/dev/ttyUSB7`.  Add or remove lines from the `*.multi` files as necessary to configure a different number of attached MD-90s.
 
 **1. Define a new serial port named "serial0" and set the location of the physical port**  
 `drvAsynSerialPortConfigure([serial name], [device location], 0, 0, 0)`  
