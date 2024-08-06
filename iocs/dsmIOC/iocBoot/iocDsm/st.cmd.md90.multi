@@ -147,32 +147,40 @@ iocInit
 # This IOC does not use save/restore, so set values of some PVs
 dbpf("DSM:m0.RTRY", "0")
 dbpf("DSM:m0.TWV", "0.1")
-dbpf("DSM:m0.VMAX", "0.625")
+dbpf("DSM:m0.VMAX", "1.0")
+dbpf("DSM:m0.HVEL", "1.0")
 
 dbpf("DSM:m1.RTRY", "0")
 dbpf("DSM:m1.TWV", "0.1")
-dbpf("DSM:m1.VMAX", "0.625")
+dbpf("DSM:m1.VMAX", "1.0")
+dbpf("DSM:m1.HVEL", "1.0")
 
 dbpf("DSM:m2.RTRY", "0")
 dbpf("DSM:m2.TWV", "0.1")
-dbpf("DSM:m2.VMAX", "0.625")
+dbpf("DSM:m2.VMAX", "1.0")
+dbpf("DSM:m2.HVEL", "1.0")
 
 dbpf("DSM:m3.RTRY", "0")
 dbpf("DSM:m3.TWV", "0.1")
-dbpf("DSM:m3.VMAX", "0.625")
+dbpf("DSM:m3.VMAX", "1.0")
+dbpf("DSM:m3.HVEL", "1.0")
 
 dbpf("DSM:m4.RTRY", "0")
 dbpf("DSM:m4.TWV", "0.1")
-dbpf("DSM:m4.VMAX", "0.625")
+dbpf("DSM:m4.VMAX", "1.0")
+dbpf("DSM:m4.HVEL", "1.0")
 
 dbpf("DSM:m5.RTRY", "0")
 dbpf("DSM:m5.TWV", "0.1")
-dbpf("DSM:m5.VMAX", "0.625")
+dbpf("DSM:m5.VMAX", "1.0")
+dbpf("DSM:m5.HVEL", "1.0")
 
 dbpf("DSM:m6.RTRY", "0")
 dbpf("DSM:m6.TWV", "0.1")
-dbpf("DSM:m6.VMAX", "0.625")
+dbpf("DSM:m6.VMAX", "1.0")
+dbpf("DSM:m6.HVEL", "1.0")
 
 dbpf("DSM:m7.RTRY", "0")
 dbpf("DSM:m7.TWV", "0.1")
-dbpf("DSM:m7.VMAX", "0.625")
+dbpf("DSM:m7.VMAX", "1.0")
+dbpf("DSM:m7.HVEL", "1.0")

@@ -12,6 +12,8 @@ March 1, 2012
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <chrono>
+#include <thread>
 
 #include <iocsh.h>
 #include <epicsThread.h>
@@ -219,13 +221,43 @@ asynStatus MD90Axis::move(double position, int relative, double minVelocity, dou
 
 asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceleration, int forwards)
 {
+  int sleepTime;
   asynStatus status;
   static const char *functionName = "MD90Axis::home";
 
   status = sendAccelAndVelocity(acceleration, maxVelocity);
 
-  sprintf(pC_->outString_, "HOM");
-  status = pC_->writeReadController();
+  // The MD-90 will start the home routine in the direction of the last move
+  // Here we first make a small move to set the desired direction before homing
+
+  if (!status) {
+    sprintf(pC_->outString_, "SNS %d", SMALL_NSTEPS);
+    status = pC_->writeReadController();
+  }
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
+
+  if (forwards) {
+    sprintf(pC_->outString_, "ESF");
+  } else {
+    sprintf(pC_->outString_, "ESB");
+  }
+  if (!status) {
+    status = pC_->writeReadController();
+  }
+  if (!status) {
+    status = parseReply(functionName, pC_->inString_);
+  }
+
+  if (!status) {
+    // Wait for the move to complete, then home
+    sleepTime = SLEEP_MARGIN * SMALL_NSTEPS * COUNTS_PER_STEP / maxVelocity;
+    std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
+
+    sprintf(pC_->outString_, "HOM");
+    status = pC_->writeReadController();
+  }
   if (!status) {
     status = parseReply(functionName, pC_->inString_);
   }
