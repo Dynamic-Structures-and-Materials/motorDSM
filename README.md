@@ -16,7 +16,7 @@ To run the example IOC, build the packages listed below, then:
 1. Follow the steps in "Configuring the system for attached controllers" below.
 2. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.
 If it's running on the same computer, you can use the loopback IP address.  
-`export EPICS_CA_ADDR_LIST='127.0.0.1`  
+`export EPICS_CA_ADDR_LIST='127.0.0.1'`  
 3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
 ```
 $ ../../bin/linux-x86_64/dsm st.cmd.md90
