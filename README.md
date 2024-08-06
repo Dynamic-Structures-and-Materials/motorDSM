@@ -9,28 +9,30 @@ motorDSM can also be built outside of motor by copying it's ``configure/EXAMPLE_
 
 motorDSM contains an example IOC that is built if ``configure/CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of the driver module.  Copy ``iocs/dsmIOC/configure/EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and uncomment and set the paths for the appropriate lines depending on whether motorDSM was built inside the motor module or independently.
 
-# Running an example IOC
+
+-------------------------------------------------
+Running an example IOC
+-------------------------------------------------
 
 To run the example IOC, build the packages listed below, then:  
 
 1. Follow the steps in "Configuring the system for attached controllers" below.
+
 2. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.
 If it's running on the same computer, you can use the loopback IP address.  
-`export EPICS_CA_ADDR_LIST='127.0.0.1'`  
-3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
-```
-$ ../../bin/linux-x86_64/dsm st.cmd.md90
-```
+`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
 
-for one attached MD-90 controller, or
-```
-$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi
-```
+3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90`  
+for one attached MD-90 controller, or  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi`  
 for eight attached MD-90 controllers. Edit this file to use more than one unit; simply comment out the ones you don't need.  
 
 4. Test using the `caget` and `caput` arguments as described in the "Example usage" section below.
 
-# Configuring the system for attached controllers
+
+-------------------------------------------------
+Configuring the system for attached controllers
 -------------------------------------------------
 
 The following steps must be used in either st.cmd.md90 (for a single unit) or in st.cmd.md90.multiple (for multiple units).
@@ -89,15 +91,14 @@ Note that, despite this field being called "Port", they use the names of the MD9
 Do __not__ use the direct serial port names (by default, serial0, serial1, etc.).  
 
 
-# Compiling motorDSM
-
-------------------------
+-------------------------------------------------
+Compiling motorDSM
+-------------------------------------------------
 
 To set up a full EPICS stack for development and testing, install and configure all of the following dependencies:
 
 ------------------------
-epics-base
-------------------------
+### epics-base
 
 Install make, gcc, and perl packages if not already installed, then clone and build epics-base:
 
@@ -110,8 +111,7 @@ Install make, gcc, and perl packages if not already installed, then clone and bu
 
 
 ------------------------
-asyn
-------------------------
+### asyn
 
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/asyn.git
@@ -132,8 +132,7 @@ if appropriate header files are in ``/usr/include/tirpc/rpc`` instead of ``/usr/
 
 
 ------------------------
-seq
-------------------------
+### seq
 
     $ cd $SUPPORT
     $ git clone git@github.com:ISISComputingGroup/EPICS-seq.git seq
@@ -150,8 +149,7 @@ Edit ``seq/configure/RELEASE`` to add the missing '-' before the ``include`` for
 
 
 ------------------------
-motor
-------------------------
+### motor
 
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/motor.git
@@ -164,8 +162,7 @@ Create ``motor/configure/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ
 
 
 ------------------------
-motorDSM (this package)
-------------------------
+### motorDSM (this package)
 
     $ cd $SUPPORT
     $ git clone git@github.com:Binary-Coalescence/motorDSM.git
@@ -181,24 +178,26 @@ In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEA
     $ make distclean
     $ make
 
-------------------------
-# Example usage
+
+-------------------------------------------------
+Example usage
+-------------------------------------------------
 
 After building, run the example IOC described at the top of this section in one terminal window.
 Open another terminal window and navigate to [EPICS install directory]/epics-base/bin/linux-x86_64/ (or wherever you built EPICS base.  
-Use the commands `caput` and `caget` to set and read process variables.  
+Use the commands `caget` and `caput` to read and set process variables, respectively.  
 
-For example, to get the current position, use `./caget DSM:m0.REP`. This reads the REP variable, which is the "Raw Encoder Position". Set m0 to m1, m2, etc. for multiple motors.
-
-Other examples
--------------------------
+For example, to get the current position, use:  
+`$ ./caget DSM:m0.REP`  
+This reads the REP variable, which is the "Raw Encoder Position".  Additionally, change `m0` to `m1`, `m2`, etc. to read the values from other motors when running more than one.
 
 Homing the motor (must be done before you can issue position commands):  
-`./caput DSM:m0.HOMF 1			#Begins homing sequence in the forward direction`  
-`./caput DSM:m0.HOMR 1			#Begins homing sequence in the reverse direction`  
+`$ ./caput DSM:m0.HOMF 1			#Begins homing sequence in the forward direction`  
+or  
+`$ ./caput DSM:m0.HOMR 1			#Begins homing sequence in the reverse direction`  
 
 Moving to a position target:  
-`./caput DSM:m0.VAL 2.345		#Moves to 2.345 mm`
+`$ ./caput DSM:m0.VAL 2.345		#Moves to 2.345 mm`
 
 Setting a velocity target:  
 `./caput DSM:m0.VELO 0.5		#Sets velocity target to 0.5 mm/s`  
