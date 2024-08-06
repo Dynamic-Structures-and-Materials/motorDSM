@@ -26,7 +26,7 @@ You will also need to ensure they match the names used in ``motor.substitutions.
 By default, ports are assumed to be at ``/dev/ttyUSB0``, ``/dev/ttyUSB1``, etc.
 You will also need to comment or uncomment lines depending on the number of drivers you have connected. For each driver, make sure you uncomment/call the following functions:
 
-**1. Define a new serial port named "serial0"**
+**1. Define a new serial port named "serial0"**  
 `drvAsynSerialPortConfigure([serial name], [device location], 0, 0, 0)`  
 *e.g., `drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)`*  
 
@@ -49,7 +49,7 @@ asynSetTraceIOMask("serial0", 0, 2)
 ```
 where `[serial name]` is the name you assigned in step 1, surrounded by double quotes.
 
-**3. Set initial parameters** 
+**3. Set initial parameters**  
 - Power supply enabled (`EPS` command)
 - Deadband = 10 nm (`SDB 10` command)  
 ```
@@ -59,7 +59,7 @@ asynOctetWrite("initConnection", "SDB 10")
 asynOctetDisconnect('initConnection')
 ```
 
-**4. Create MD90 Controller object**
+**4. Create MD90 Controller object**  
 `MD90CreateController([controller name], [serial name], 1, 100, 5000)`  
 where `[controller name]` is the name of the motor to assign. Convention is to use "MD90n", starting with n=0.
 
@@ -176,13 +176,13 @@ For example, to get the current position, use `./caget DSM:m0.REP`. This reads t
 Other examples
 -------------------------
 
-Homing the motor (must be done before you can issue position commands):
+Homing the motor (must be done before you can issue position commands):  
 `./caput DSM:m0.HOMF 1			#Begins homing sequence in the forward direction`  
 `./caput DSM:m0.HOMR 1			#Begins homing sequence in the reverse direction`  
 
-Moving to a position target:
-`./caput DSM:m0.VAL 2.345		#Moves to 2.345 mm
+Moving to a position target:  
+`./caput DSM:m0.VAL 2.345		#Moves to 2.345 mm`
 
-Setting a velocity target:
+Setting a velocity target:  
 `./caput DSM:m0.VELO 0.5		#Sets velocity target to 0.5 mm/s`  
 Note that velocity targets are appropriate only. They adjust the step rate of the motor, and are not guaranteed to be exact.
