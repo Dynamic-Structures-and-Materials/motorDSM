@@ -253,6 +253,9 @@ asynStatus MD90Axis::home(double minVelocity, double maxVelocity, double acceler
   if (!status) {
     // Wait for the move to complete, then home
     sleepTime = SLEEP_MARGIN * SMALL_NSTEPS * COUNTS_PER_STEP / maxVelocity;
+    if (sleepTime < HOME_SLEEP_MIN) {
+        sleepTime = HOME_SLEEP_MIN;
+    }
     std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
     sprintf(pC_->outString_, "HOM");

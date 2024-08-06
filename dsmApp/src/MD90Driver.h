@@ -13,6 +13,7 @@ USAGE...      Motor driver support for the DSM MD-90 controller.
 #define NUM_MD90_PARAMS 0  
 
 #define SLEEP_MARGIN		1.2					// Extra factor to wait after stepping before homing
+#define HOME_SLEEP_MIN		1					// Minimum amount of time to wait after stepping/before homing
 #define SMALL_NSTEPS		5					// Number of steps to take to set direction for homing routine
 #define COUNTS_PER_STEP		1000.0				// Number of encoder counts per motor step (measured by testing)
 
