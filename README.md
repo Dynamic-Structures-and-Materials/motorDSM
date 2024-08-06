@@ -99,28 +99,7 @@ In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEA
 
 
 -------------------------------------------------
-Running an example IOC
--------------------------------------------------
-
-To run the example IOC, build the packages listed below, then:  
-
-1. Follow the steps in "Configuring the system for attached controllers" below.
-
-2. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.
-If it's running on the same computer, you can use the loopback IP address.  
-`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
-
-3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
-`$ ../../bin/linux-x86_64/dsm st.cmd.md90`  
-for one attached MD-90 controller, or  
-`$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi`  
-for eight attached MD-90 controllers. Edit this file to use more than one unit; simply comment out the ones you don't need.  
-
-4. Test using the `caget` and `caput` arguments as described in the "Example usage" section below.
-
-
--------------------------------------------------
-Configuring the system for attached controllers
+Configuring the IOC server
 -------------------------------------------------
 
 The following steps must be used in either st.cmd.md90 (for a single unit) or in st.cmd.md90.multiple (for multiple units).
@@ -177,6 +156,27 @@ Save and close the st.cmd file you've been configuring, then open the motor subs
 Ensure the values in the `pattern` block's `PORT` field match the names used in the std.cmd file.
 Note that, despite this field being called "Port", they use the names of the MD90 Controller object defined above (by default, MD900, MD901, etc.
 Do __not__ use the direct serial port names (by default, serial0, serial1, etc.).  
+
+
+-------------------------------------------------
+Running the example IOC
+-------------------------------------------------
+
+To run the example IOC, build the packages listed below, then:  
+
+1. Follow the steps in "Configuring the system for attached controllers" below.
+
+2. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.
+If it's running on the same computer, you can use the loopback IP address.  
+`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
+
+3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90`  
+for one attached MD-90 controller, or  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi`  
+for eight attached MD-90 controllers. Edit this file to use more than one unit; simply comment out the ones you don't need.  
+
+4. Test using the `caget` and `caput` arguments as described in the "Example usage" section below.
 
 
 -------------------------------------------------
