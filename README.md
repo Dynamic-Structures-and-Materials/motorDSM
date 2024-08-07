@@ -204,26 +204,18 @@ Setting a velocity target:
 `$ ./caput DSM:m0.VELO 0.5`  
 This sets the velocity target to 0.5 mm/s.  (Note that velocity targets are approximate only.  They adjust the step rate of the motor and are not guaranteed to be exact.)
 
-A note aboue velocity targets
------------------------------
-The I-20 motor driven by the MD-90 is a closed loop "step and repeat" motor that takes full steps towards its position target until it is
-close, then will perform linear extensions to close the loop on the target position. This is handled internally on the MD-90, not by
-EPICS.
 
-The Velocity target parameter sets the step frequency
-at which the motor operates on its way to the target position. The speed is not closed loop, and will depend on external loads, environmental
-conditions, etc. A speed target of 1 mm/s will generate a roughly 1 mm/s motion, but it is not guaranteed.
+-------------------------------------------------
+A note about velocity targets
+-------------------------------------------------
 
-Additionally, due to the way EPICS operates, setting VELO will not immediately send a command to the MD90. Instead, EPICS remembers the last value you set, and will set this new
-velocity target when it sends the next move command. **However, the motor must not be in servo mode to accept a new velocity target.**
+The I-20 motor driven by the MD-90 is a closed loop "step and repeat" motor that takes full steps towards its position target until it is close, then will perform linear extensions to close the loop on the target position.  This is handled internally on the MD-90, not by EPICS.
 
-The motor enters servo mode when you send a new position target, and stays in servo mode until you issue a Stop command 
-(by setting the `DSM:m0.STOP` parameter to 1).
+The velocity target parameter sets the step frequency at which the motor operates on its way to the target position.  The speed is not closed loop, and will depend on external loads, environmental conditions, etc.  A speed target of 1 mm/s will generate a roughly 1 mm/s motion, but it is not guaranteed.
 
-If you do not disable servo prior to issuing a Move command at the new velocity, then VELO will become out of sync with the actual motor
-velocity, and EPICS will return error 3 "Cannot execute while moving" in its console each time you issue a Move command.
-This is because each Move command internally sends a "Set step frequenc" command, which will error if you do not Stop the motor first.
-Reading the VELO parameter at this point will return the wrong value- it returns the value you requested, not the actual speed setting
-on the motor.
-To fix this, you must Stop the motor, then send a new Move command. At 
+Additionally, due to the way EPICS operates, setting `VELO` will not immediately send a command to the MD-90.  Instead, EPICS remembers the last value you set, and will set this new velocity target when it sends the next move command.  **However, the motor must not be in servo mode to accept a new velocity target.**
+
+The motor enters servo mode when you send a new position target, and stays in servo mode until you issue a Stop command (by setting the `DSM:m0.STOP` parameter to 1).
+
+If you do not disable servo prior to issuing a Move command at the new velocity, then `VELO` will become out of sync with the actual motor velocity, and EPICS will return error 3 "Cannot execute while moving" in its console each time you issue a Move command.  This is because each Move command internally sends a "Set step frequency" command, which will error if you do not Stop the motor first.  Reading the VELO parameter at this point will return the wrong value--it returns the value you requested, not the actual speed setting on the motor.  To fix this, you must Stop the motor, then send a new Move command.
 
