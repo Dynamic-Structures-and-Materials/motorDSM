@@ -104,11 +104,15 @@ Configuring the IOC server
 
 The directory `$SUPPORT/motorDSM/iocs/dsmIOC/iocBoot/iocDSM` contains example configurations for the IOC server that runs on the computer the motor controllers are attached to.  The `st.cmd.md90` and `motor.substitutions.md90` files provide an example to configure and run one attached MD-90.  The `st.cmd.md90.multi` and `motor.substitutions.md90.multi` files provide an example to configure and run eight attached MD-90s connected on ports `dev/ttyUSB0` through `/dev/ttyUSB7`.  Add or remove lines from the `*.multi` files as necessary to configure a different number of attached MD-90s.
 
+The parameters in the IOC startup scripts are detailed here, but the files should contain reasonable defaults to run as-is.
+
 **1. Define a new serial port named "serial0" and set the location of the physical port**  
-`drvAsynSerialPortConfigure([serial name], [device location], 0, 0, 0)`  
+
+`drvAsynSerialPortConfigure("[serial name]", "[device location]", 0, 0, 0)`  
 *e.g., `drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)`*  
 
 **2. Configure the port**  
+
 - Baud = 115200
 - Bits = 8
 - Parity = none
@@ -116,20 +120,24 @@ The directory `$SUPPORT/motorDSM/iocs/dsmIOC/iocBoot/iocDSM` contains example co
 - Input end of message: "\r"
 - Output end of message: "\r"
 - Trace IO mask: 2
+
 ```
-asynSetOption([serial name], 0, "baud", "115200")
-asynSetOption([serial name], 0, "bits", "8")
-asynSetOption([serial name], 0, "parity", "none")
-asynSetOption([serial name], 0, "stop", "1")
-asynOctetSetInputEos("serial0", 0, "\r")
-asynOctetSetOutputEos("serial0", 0, "\r")
-asynSetTraceIOMask("serial0", 0, 2)
+asynSetOption("[serial name]", 0, "baud", "115200")
+asynSetOption("[serial name]", 0, "bits", "8")
+asynSetOption("[serial name]", 0, "parity", "none")
+asynSetOption("[serial name]", 0, "stop", "1")
+asynOctetSetInputEos("[serial name]", 0, "\r")
+asynOctetSetOutputEos("[serial name]", 0, "\r")
+asynSetTraceIOMask("[serial name]", 0, 2)
 ```
-where `[serial name]` is the name you assigned in step 1, surrounded by double quotes.
+
+Here `[serial name]` is the name you assigned in step 1.
 
 **3. Set initial parameters**  
+
 - Power supply enabled (`EPS` command)
 - Deadband = 10 nm (`SDB 10` command)  
+
 ```
 asynOctetConnect("initConnection", [serial name], 0)
 asynOctetWrite("initConnection", "EPS")
@@ -137,12 +145,16 @@ asynOctetWrite("initConnection", "SDB 10")
 asynOctetDisconnect('initConnection')
 ```
 
-**4. Create MD90 Controller object**  
+**4. Create MD-90 Controller object**  
+
 `MD90CreateController([controller name], [serial name], 1, 100, 5000)`  
-where `[controller name]` is the name of the motor to assign. Convention is to use "MD90n", starting with n=0.
+
+Here `[controller name]` is the name of the motor to assign.  Convention is to use "MD90n", starting with n=0.
 
 **5. Intialize the IOC**  
-After the call to `iocInit` (still in the st.cmd.md90[.multiple] file), issue the following commands for each motor. The example below uses `DSM:m0` but it should be run for each line described in motor.substitutions.md90 (or motor.substitutions.md90.multiple).
+
+After the call to `iocInit` (still in the st.cmd.md90[.multi] file), set up some default values for EPICS process variables for each motor.  The example below uses `DSM:m0`, but they should also be set for each motor configured in the IOC startup script if connecting more than one.
+
 ````
 dbpf("DSM:m0.RTRY", "0")	#sets retries to 0; this is automatic on the MD90
 dbpf("DSM:m0.TWV", "0.1")	#Tweak distance
@@ -151,10 +163,8 @@ dbpf("DSM:m0.HVEL", "1.0")	#Sets max velocity to 1 mm/s
 ````
 
 **6. Update the substitutions file**  
-Save and close the st.cmd file you've been configuring, then open the motor substitutions file (motor.substitutions.md90[.multiple]).
-Ensure the values in the `pattern` block's `PORT` field match the names used in the std.cmd file.
-Note that, despite this field being called "Port", they use the names of the MD90 Controller object defined above (by default, MD900, MD901, etc.
-Do __not__ use the direct serial port names (by default, serial0, serial1, etc.).  
+
+In the motor substitutions file (motor.substitutions.md90[.multi]), ensure the values in the `pattern` block's `PORT` field match the names used in the `std.cmd.md90[.multi]` file.  Note that, despite this field being called "Port", it usese the names of the MD90 Controller object defined above (by default, MD900, MD901, etc).  Do __not__ use the direct serial port names (by default, serial0, serial1, etc.).  
 
 
 -------------------------------------------------
