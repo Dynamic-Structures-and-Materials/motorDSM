@@ -9,23 +9,15 @@ motorDSM can also be built outside of motor by copying it's ``configure/EXAMPLE_
 
 motorDSM contains an example IOC that is built if ``configure/CONFIG_SITE.local`` sets ``BUILD_IOCS = YES``.  The example IOC can be built outside of the driver module.  Copy ``iocs/dsmIOC/configure/EXAMPLE_RELEASE.local`` to ``RELEASE.local`` and uncomment and set the paths for the appropriate lines depending on whether motorDSM was built inside the motor module or independently.
 
-To run the example IOC, in the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run
 
-    $ ../../bin/linux-x86_64/dsm st.cmd.md90
-
-for one attached MD-90 controller, or
-
-    $ ../../bin/linux-x86_64/dsm st.cmd.md90.multi
-
-for eight attached MD-90 controllers.  You may need to change the path(s) for the serial port(s) in ``st.cmd.md90`` or ``st.cmd.md90.multi`` if the MD-90 is not attached at ``/dev/ttyUSB0``.
-
-------------------------
+-------------------------------------------------
+Compiling motorDSM
+-------------------------------------------------
 
 To set up a full EPICS stack for development and testing, install and configure all of the following dependencies:
 
 ------------------------
-epics-base
-------------------------
+### epics-base
 
 Install make, gcc, and perl packages if not already installed, then clone and build epics-base:
 
@@ -38,8 +30,7 @@ Install make, gcc, and perl packages if not already installed, then clone and bu
 
 
 ------------------------
-asyn
-------------------------
+### asyn
 
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/asyn.git
@@ -60,8 +51,7 @@ if appropriate header files are in ``/usr/include/tirpc/rpc`` instead of ``/usr/
 
 
 ------------------------
-seq
-------------------------
+### seq
 
     $ cd $SUPPORT
     $ git clone git@github.com:ISISComputingGroup/EPICS-seq.git seq
@@ -78,8 +68,7 @@ Edit ``seq/configure/RELEASE`` to add the missing '-' before the ``include`` for
 
 
 ------------------------
-motor
-------------------------
+### motor
 
     $ cd $SUPPORT
     $ git clone git@github.com:epics-modules/motor.git
@@ -92,8 +81,7 @@ Create ``motor/configure/RELEASE.local`` and set ``SUPPORT``, ``ASYN``, ``SNCSEQ
 
 
 ------------------------
-motorDSM (this package)
-------------------------
+### motorDSM (this package)
 
     $ cd $SUPPORT
     $ git clone git@github.com:Binary-Coalescence/motorDSM.git
@@ -108,3 +96,136 @@ In ``motorDSM/iocs/dsmIOC/configure``, copy ``EXAMPLE_RELEASE.local`` to ``RELEA
     $ cd $SUPPORT/motorDSM
     $ make distclean
     $ make
+
+
+-------------------------------------------------
+Configuring the IOC server
+-------------------------------------------------
+
+The directory `$SUPPORT/motorDSM/iocs/dsmIOC/iocBoot/iocDSM` contains example configurations for the IOC server that runs on the computer the motor controllers are attached to.  The `st.cmd.md90` and `motor.substitutions.md90` files provide an example to configure and run one attached MD-90.  The `st.cmd.md90.multi` and `motor.substitutions.md90.multi` files provide an example to configure and run eight attached MD-90s connected on ports `dev/ttyUSB0` through `/dev/ttyUSB7`.  Add or remove lines from the `*.multi` files as necessary to configure a different number of attached MD-90s.
+
+The parameters in the IOC startup scripts are detailed here, but the files should contain reasonable defaults to run as-is.
+
+**1. Define a new serial port named "serial0" and set the location of the physical port**  
+
+`drvAsynSerialPortConfigure("[serial name]", "[device location]", 0, 0, 0)`  
+*e.g., `drvAsynSerialPortConfigure("serial0", "/dev/ttyUSB0", 0, 0, 0)`*  
+
+**2. Configure the port**  
+
+- Baud = 115200
+- Bits = 8
+- Parity = none
+- Stop bits = 1
+- Input end of message: "\r"
+- Output end of message: "\r"
+- Trace IO mask: 2
+
+```
+asynSetOption("[serial name]", 0, "baud", "115200")
+asynSetOption("[serial name]", 0, "bits", "8")
+asynSetOption("[serial name]", 0, "parity", "none")
+asynSetOption("[serial name]", 0, "stop", "1")
+asynOctetSetInputEos("[serial name]", 0, "\r")
+asynOctetSetOutputEos("[serial name]", 0, "\r")
+asynSetTraceIOMask("[serial name]", 0, 2)
+```
+
+Here `[serial name]` is the name you assigned in step 1.
+
+**3. Set initial parameters**  
+
+- Power supply enabled (`EPS` command)
+- Deadband = 10 nm (`SDB 10` command)  
+
+```
+asynOctetConnect("initConnection", [serial name], 0)
+asynOctetWrite("initConnection", "EPS")
+asynOctetWrite("initConnection", "SDB 10")
+asynOctetDisconnect('initConnection')
+```
+
+**4. Create MD-90 Controller object**  
+
+`MD90CreateController([controller name], [serial name], 1, 100, 5000)`  
+
+Here `[controller name]` is the name of the motor to assign.  Convention is to use "MD90n", starting with n=0.
+
+**5. Intialize the IOC**  
+
+After the call to `iocInit` (still in the st.cmd.md90[.multi] file), set up some default values for EPICS process variables for each motor.  The example below uses `DSM:m0`, but they should also be set for each motor configured in the IOC startup script if connecting more than one.
+
+````
+dbpf("DSM:m0.RTRY", "0")	#sets retries to 0; this is automatic on the MD90
+dbpf("DSM:m0.TWV", "0.1")	#Tweak distance
+dbpf("DSM:m0.VMAX", "1.0")	#Sets max velocity to 1 mm/s
+dbpf("DSM:m0.HVEL", "1.0")	#Sets max velocity to 1 mm/s
+````
+
+**6. Update the substitutions file**  
+
+In the motor substitutions file (motor.substitutions.md90[.multi]), ensure the values in the `pattern` block's `PORT` field match the names used in the `std.cmd.md90[.multi]` file.  Note that, despite this field being called "Port", it usese the names of the MD90 Controller object defined above (by default, MD900, MD901, etc).  Do __not__ use the direct serial port names (by default, serial0, serial1, etc.).  
+
+
+-------------------------------------------------
+Running the example IOC
+-------------------------------------------------
+
+To run the example IOC configured above:
+
+1. Follow the steps in "Configuring the system for attached controllers" below.
+
+3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90`  
+for one attached MD-90 controller, or  
+`$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi`  
+for multiple attached MD-90 controllers.  This is set up for eight controllers, so add or remove lines as appropriate if using a different number.
+
+4. Test using the `caget` and `caput` programs from the `epics-base` package as described in the "Example usage" section below.
+
+
+-------------------------------------------------
+Example usage
+-------------------------------------------------
+
+1. After building, run the example IOC described above in one terminal window.
+
+2. Open another terminal window on either the same computer as the IOC or another computer on the LAN and navigate to `[EPICS install directory]/epics-base/bin/linux-x86_64/` (or wherever you built EPICS base).  You could alternatively add this directory to your PATH.
+
+3. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.  If it's running on the same computer, you can use the loopback IP address:  
+`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
+
+4.  Use the `caget` and `caput` programs to read and set process variables, respectively.  
+
+For example, to get the current position (in encoder counts of 10 nm), use:  
+`$ ./caget DSM:m0.REP`  
+This reads the REP variable, which is the "Raw Encoder Position".  Additionally, change `m0` to `m1`, `m2`, etc. to read the values from other motors when running more than one.
+
+Homing the motor (must be done before you can issue position commands):  
+`$ ./caput DSM:m0.HOMF 1`  
+This starts the homing sequence in the forward direction.  Alternatively, for homing starting in the reverse direction:  
+`$ ./caput DSM:m0.HOMR 1`
+
+Moving to a position target:  
+`$ ./caput DSM:m0.VAL 2.345`  
+This moves the motor to 2.345 mm.
+
+Setting a velocity target:  
+`$ ./caput DSM:m0.VELO 0.5`  
+This sets the velocity target to 0.5 mm/s.  (Note that velocity targets are approximate only.  They adjust the step rate of the motor and are not guaranteed to be exact.)
+
+
+-------------------------------------------------
+A note about velocity targets
+-------------------------------------------------
+
+The I-20 motor driven by the MD-90 is a closed loop "step and repeat" motor that takes full steps towards its position target until it is close, then will perform linear extensions to close the loop on the target position.  This is handled internally on the MD-90, not by EPICS.
+
+The velocity target parameter sets the step frequency at which the motor operates on its way to the target position.  The speed is not closed loop, and will depend on external loads, environmental conditions, etc.  A speed target of 1 mm/s will generate a roughly 1 mm/s motion, but it is not guaranteed.
+
+Additionally, due to the way EPICS operates, setting `VELO` will not immediately send a command to the MD-90.  Instead, EPICS remembers the last value you set, and will set this new velocity target when it sends the next move command.  **However, the motor must not be in servo mode to accept a new velocity target.**
+
+The motor enters servo mode when you send a new position target, and stays in servo mode until you issue a Stop command (by setting the `DSM:m0.STOP` parameter to 1).
+
+If you do not disable servo prior to issuing a Move command at the new velocity, then `VELO` will become out of sync with the actual motor velocity, and EPICS will return error 3 "Cannot execute while moving" in its console each time you issue a Move command.  This is because each Move command internally sends a "Set step frequency" command, which will error if you do not Stop the motor first.  Reading the VELO parameter at this point will return the wrong value--it returns the value you requested, not the actual speed setting on the motor.  To fix this, you must Stop the motor, then send a new Move command.
+
