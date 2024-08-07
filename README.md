@@ -161,46 +161,48 @@ Do __not__ use the direct serial port names (by default, serial0, serial1, etc.)
 Running the example IOC
 -------------------------------------------------
 
-To run the example IOC, build the packages listed below, then:  
+To run the example IOC configured above:
 
 1. Follow the steps in "Configuring the system for attached controllers" below.
-
-2. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.
-If it's running on the same computer, you can use the loopback IP address.  
-`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
 
 3. In the ``iocs/dsmIOC/iocBoot/iocDsm`` directory, run  
 `$ ../../bin/linux-x86_64/dsm st.cmd.md90`  
 for one attached MD-90 controller, or  
 `$ ../../bin/linux-x86_64/dsm st.cmd.md90.multi`  
-for eight attached MD-90 controllers. Edit this file to use more than one unit; simply comment out the ones you don't need.  
+for multiple attached MD-90 controllers.  This is set up for eight controllers, so add or remove lines as appropriate if using a different number.
 
-4. Test using the `caget` and `caput` arguments as described in the "Example usage" section below.
+4. Test using the `caget` and `caput` programs from the `epics-base` package as described in the "Example usage" section below.
 
 
 -------------------------------------------------
 Example usage
 -------------------------------------------------
 
-After building, run the example IOC described at the top of this section in one terminal window.
-Open another terminal window and navigate to [EPICS install directory]/epics-base/bin/linux-x86_64/ (or wherever you built EPICS base.  
-Use the commands `caget` and `caput` to read and set process variables, respectively.  
+1. After building, run the example IOC described above in one terminal window.
 
-For example, to get the current position, use:  
+2. Open another terminal window on either the same computer as the IOC or another computer on the LAN and navigate to `[EPICS install directory]/epics-base/bin/linux-x86_64/` (or wherever you built EPICS base).  You could alternatively add this directory to your PATH.
+
+3. Set the "EPICS_CA_ADDR_LIST" environment variable to include the IP address of the server.  If it's running on the same computer, you can use the loopback IP address:  
+`$ export EPICS_CA_ADDR_LIST='127.0.0.1'`  
+
+4.  Use the `caget` and `caput` programs to read and set process variables, respectively.  
+
+For example, to get the current position (in encoder counts of 10 nm), use:  
 `$ ./caget DSM:m0.REP`  
 This reads the REP variable, which is the "Raw Encoder Position".  Additionally, change `m0` to `m1`, `m2`, etc. to read the values from other motors when running more than one.
 
 Homing the motor (must be done before you can issue position commands):  
-`$ ./caput DSM:m0.HOMF 1			#Begins homing sequence in the forward direction`  
-or  
-`$ ./caput DSM:m0.HOMR 1			#Begins homing sequence in the reverse direction`  
+`$ ./caput DSM:m0.HOMF 1`  
+This starts the homing sequence in the forward direction.  Alternatively, for homing starting in the reverse direction:  
+`$ ./caput DSM:m0.HOMR 1`
 
 Moving to a position target:  
-`$ ./caput DSM:m0.VAL 2.345		#Moves to 2.345 mm`
+`$ ./caput DSM:m0.VAL 2.345`  
+This moves the motor to 2.345 mm.
 
 Setting a velocity target:  
-`./caput DSM:m0.VELO 0.5		#Sets velocity target to 0.5 mm/s`  
-(Note that velocity targets are appropriate only. They adjust the step rate of the motor and are not guaranteed to be exact.)
+`$ ./caput DSM:m0.VELO 0.5`  
+This sets the velocity target to 0.5 mm/s.  (Note that velocity targets are approximate only.  They adjust the step rate of the motor and are not guaranteed to be exact.)
 
 A note aboue velocity targets
 -----------------------------
