@@ -391,7 +391,7 @@ asynStatus MD90Axis::poll(bool *moving)
   if (comStatus) goto skip;
   // The response string is of the form "0: Power supply enabled state: 1"
   sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  driveOn = (replyValue == '1') ? 1:0;
+  driveOn = (replyValue == 1) ? 1:0;
   setIntegerParam(pC_->motorStatusPowerOn_, driveOn);
 
   // Read the home status
@@ -400,7 +400,7 @@ asynStatus MD90Axis::poll(bool *moving)
   if (comStatus) goto skip;
   // The response string is of the form "0: Home status: 1"
   sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  homed = (replyValue == '1') ? 1:0;
+  homed = (replyValue == 1) ? 1:0;
   setIntegerParam(pC_->motorStatusHomed_, homed);
 
   // Read the moving status of this motor
@@ -409,7 +409,7 @@ asynStatus MD90Axis::poll(bool *moving)
   if (comStatus) goto skip;
   // The response string is of the form "0: Current status value: 0"
   sscanf(pC_->inString_, "%d: %[^:]: %d", &replyStatus, replyString, &replyValue);
-  done = (replyValue == '2') ? 0:1;
+  done = (replyValue == 2) ? 0:1;
   setIntegerParam(pC_->motorStatusDone_, done);
   *moving = done ? false:true;
   switch(replyValue) {
